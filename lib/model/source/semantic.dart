@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:aves/model/entry/entry.dart';
+import 'package:aves/model/semantic/auto_tagger.dart';
 import 'package:aves/model/semantic/rows.dart';
 import 'package:aves/model/semantic/scope.dart';
 import 'package:aves/model/semantic/search.dart';
@@ -9,13 +10,14 @@ import 'package:aves/model/semantic/vector.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/analysis_controller.dart';
 import 'package:aves/model/source/collection_source.dart';
+import 'package:aves/model/source/tag.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/services/semantic/model_service.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
-mixin SemanticMixin on SourceBase {
+mixin SemanticMixin on SourceBase, TagMixin {
   static const _batchSize = 8;
   static const _commitCountThreshold = 64;
 
@@ -229,10 +231,108 @@ mixin SemanticMixin on SourceBase {
     }
   }
 
-  // hook for derived data, e.g. auto tagging
-  @mustCallSuper
   Future<void> onSemanticEmbeddingsChanged(Set<SemanticEmbeddingRow> rows) async {
+    if (settings.semanticAutoTagEnabled) {
+      await _autoTag(rows);
+    }
     eventBus.fire(SemanticIndexChangedEvent());
+  }
+
+  // auto tagging
+
+  List<SemanticLabelVector>? _labelVectors;
+  String? _labelVectorsKey;
+
+  static bool get _showAutoTags => settings.semanticEnabled && settings.semanticAutoTagEnabled && settings.semanticAutoTagShowAsTags;
+
+  void onAutoTagSettingsChanged() {
+    // flag is shared by all sources, so derived tags are invalidated regardless of previous value
+    AvesEntry.showAutoTags = _showAutoTags;
+    onCatalogMetadataChanged();
+  }
+
+  Future<void> loadSemanticTags({Set<int>? ids}) async {
+    AvesEntry.showAutoTags = _showAutoTags;
+    final rows = await localMediaDb.loadSemanticTags(ids: ids);
+    final tagsById = <int, Set<String>>{};
+    rows.forEach((row) => tagsById.putIfAbsent(row.id, () => {}).add(row.tag));
+    if (ids == null) {
+      allEntries.forEach((entry) => entry.autoTags = tagsById[entry.id] ?? const {});
+    } else {
+      ids.forEach((id) {
+        final entry = getEntryById(id);
+        if (entry != null) {
+          entry.autoTags = tagsById[id] ?? const {};
+        }
+      });
+    }
+    if (rows.isNotEmpty) {
+      onCatalogMetadataChanged();
+    }
+  }
+
+  Future<List<SemanticLabelVector>> _getLabelVectors(String modelId, int dimension) async {
+    final languageCode = settings.resolvedLocale.languageCode;
+    final labels = [
+      ...await SemanticAutoTagger.builtInLabels(languageCode),
+      ...SemanticAutoTagger.customLabels(settings.semanticAutoTagCustomLabels),
+    ];
+    final key = '$modelId-$dimension-${Object.hashAll(labels)}';
+    if (_labelVectorsKey == key && _labelVectors != null) return _labelVectors!;
+
+    final modelPath = settings.semanticModelPath;
+    if (modelPath != null && !semanticEngine.isLoaded) {
+      await semanticEngine.load(modelPath: modelPath, backend: settings.semanticPerformanceParams.backend.name);
+    }
+    final vectors = await SemanticAutoTagger.labelVectors(
+      labels: labels,
+      modelId: modelId,
+      dimension: dimension,
+      loadCache: () => localMediaDb.loadSemanticLabels(modelId, dimension),
+      saveCache: localMediaDb.saveSemanticLabels,
+      embedTexts: semanticEngine.embedTexts,
+    );
+    _labelVectors = vectors;
+    _labelVectorsKey = key;
+    return vectors;
+  }
+
+  Future<void> _autoTag(Set<SemanticEmbeddingRow> rows) async {
+    final modelId = settings.semanticModelId;
+    if (modelId == null || rows.isEmpty) return;
+
+    final dimension = settings.semanticPerformanceParams.vectorDimension;
+    try {
+      final labelVectors = await _getLabelVectors(modelId, dimension);
+      final tagRows = SemanticAutoTagger.tagRows(
+        rows,
+        labelVectors,
+        threshold: settings.semanticAutoTagThreshold,
+        maxCount: settings.semanticAutoTagMaxPerItem,
+      );
+      final ids = rows.map((row) => row.id).toSet();
+      await localMediaDb.replaceSemanticTags(ids, tagRows);
+      await loadSemanticTags(ids: ids);
+    } catch (error, stack) {
+      debugPrint('$runtimeType failed to auto tag with error=$error\n$stack');
+    }
+  }
+
+  // recomputes auto tags of all indexed items, e.g. after label or threshold changes
+  Future<void> recomputeSemanticTags() async {
+    final modelId = settings.semanticModelId;
+    if (!isSemanticReady || modelId == null) return;
+
+    await localMediaDb.clearSemanticTags();
+    if (settings.semanticAutoTagEnabled) {
+      final dimension = settings.semanticPerformanceParams.vectorDimension;
+      final rows = await localMediaDb.loadSemanticEmbeddings(modelId, dimension);
+      for (final slice in rows.slices(500)) {
+        await _autoTag(slice.toSet());
+      }
+    }
+    await loadSemanticTags();
+    onCatalogMetadataChanged();
   }
 }
 

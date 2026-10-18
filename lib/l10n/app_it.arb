@@ -35,6 +35,7 @@
     "semanticSimilarToFilterLabel": "Simili a {title}",
     "semanticSearchFilterLabel": "Cerca per contenuto",
     "entryActionFindSimilar": "Trova elementi simili",
+    "entryActionApplyAutoTags": "Scrivi i tag automatici nel file",
     "chipActionDelete": "Elimina",
     "chipActionGoToAlbumPage": "Visualizza negli Album",
     "chipActionGoToCountryPage": "Visualizza nei Paesi",

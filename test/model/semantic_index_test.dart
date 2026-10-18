@@ -34,6 +34,7 @@ void main() {
   late Directory tempDir;
 
   setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
     await setUpAllServices();
     getIt.registerLazySingleton<SemanticEngine>(FakeSemanticEngine.new);
   });
@@ -213,5 +214,30 @@ void main() {
     // reference item is excluded, and other item is not similar enough
     expect(semanticSearch.isResolved(similarFilter), isTrue);
     expect(semanticSearch.contains(similarFilter, a1Id), isFalse);
+  });
+
+  test('auto tags are derived from vectors, and not mixed with file tags', () async {
+    final a1 = FakeMediaStoreService.newImage(albumA, 'a1');
+    (mediaStoreService as FakeMediaStoreService).entries = {a1};
+    settings.semanticIndexScope = SemanticIndexScope.all;
+
+    final source = await initSource();
+    final entry = source.allEntries.single;
+    expect(entry.autoTags, isEmpty);
+
+    // fake engine maps text `n` to the same vector as the image of item with ID `n`
+    settings.semanticAutoTagEnabled = true;
+    settings.semanticAutoTagCustomLabels = ['${entry.id}'];
+    await source.recomputeSemanticTags();
+    expect(entry.autoTags, {'${entry.id}'});
+    expect(entry.tags, isEmpty);
+    expect(entry.effectiveTags, {'${entry.id}'});
+    expect(source.sortedTags, contains('${entry.id}'));
+
+    settings.semanticAutoTagShowAsTags = false;
+    // settings changes are handled asynchronously
+    await Future.delayed(Duration.zero);
+    expect(entry.effectiveTags, isEmpty);
+    expect(source.sortedTags, isNot(contains('${entry.id}')));
   });
 }

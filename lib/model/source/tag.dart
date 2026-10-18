@@ -20,7 +20,7 @@ mixin TagMixin on SourceBase {
   List<String>? _sortedTags;
 
   List<String> get sortedTags {
-    _sortedTags ??= List.unmodifiable(visibleEntries.expand((entry) => entry.tags).toSet().toList()..sort(compareAsciiUpperCaseNatural));
+    _sortedTags ??= List.unmodifiable(visibleEntries.expand((entry) => entry.effectiveTags).toSet().toList()..sort(compareAsciiUpperCaseNatural));
     return _sortedTags!;
   }
 
@@ -114,7 +114,7 @@ mixin TagMixin on SourceBase {
     } else {
       tags ??= {};
       if (entries != null) {
-        tags.addAll(entries.where((entry) => entry.isCatalogued).expand((entry) => entry.tags));
+        tags.addAll(entries.where((entry) => entry.isCatalogued).expand((entry) => entry.effectiveTags));
       }
       tags.map((v) => TagFilter(v).key).forEach(_filterSummary.remove);
 
@@ -143,7 +143,7 @@ mixin TagMixin on SourceBase {
     final recentEntries = <String, AvesEntry?>{};
 
     sortedEntriesByDate.forEach((entry) {
-      final tags = entry.tags;
+      final tags = entry.effectiveTags;
       tags.forEach((tag) {
         entryCounts[tag] = (entryCounts[tag] ?? 0) + 1;
         sizes[tag] = (sizes[tag] ?? 0) + (entry.sizeBytes ?? 0);

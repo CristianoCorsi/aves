@@ -124,7 +124,7 @@ class _BasicSectionState extends State<BasicSection> with AutomaticKeepAliveClie
     final entry = widget.entry;
     final dateTime = entry.bestDate;
     final album = entry.directory;
-    final tags = entry.tags.toList()..sort(compareAsciiUpperCaseNatural);
+    final tags = entry.effectiveTags.toList()..sort(compareAsciiUpperCaseNatural);
 
     final filters = {
       MimeFilter(entry.mimeType),

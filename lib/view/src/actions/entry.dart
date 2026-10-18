@@ -69,6 +69,7 @@ extension ExtraEntryActionView on EntryAction {
       .viewMotionPhotoVideo => l10n.entryActionViewMotionPhotoVideo,
       // semantic
       .findSimilar => l10n.entryActionFindSimilar,
+      .applyAutoTags => l10n.entryActionApplyAutoTags,
       // generic
       .settings => l10n.viewerActionSettings,
       .debug => 'Debug',
@@ -150,6 +151,7 @@ extension ExtraEntryActionView on EntryAction {
       .viewMotionPhotoVideo => AIcons.openVideoPart,
       // semantic
       .findSimilar => AIcons.semanticSimilar,
+      .applyAutoTags => AIcons.tag,
       // generic
       .settings => AIcons.settings,
       .debug => AIcons.debug,

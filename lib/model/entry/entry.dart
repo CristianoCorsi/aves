@@ -340,9 +340,22 @@ class AvesEntry with AvesEntryBase {
 
   Set<String>? _tags;
 
+  // tags from file metadata, which are the ones to edit
   Set<String> get tags {
     _tags ??= _catalogMetadata?.xmpSubjects?.split(';').where((tag) => tag.isNotEmpty).toSet() ?? {};
     return _tags!;
+  }
+
+  // tags from semantic auto tagging, only stored in the app database
+  Set<String> autoTags = const {};
+
+  // whether auto tags are used like other tags, for filtering and browsing
+  static bool showAutoTags = false;
+
+  // tags for display and filtering, which may include auto tags
+  Set<String> get effectiveTags {
+    if (!showAutoTags || autoTags.isEmpty) return tags;
+    return {...tags, ...autoTags};
   }
 
   String? _bestTitle;

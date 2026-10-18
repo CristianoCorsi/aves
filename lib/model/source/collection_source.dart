@@ -94,8 +94,15 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
         _onFilterVisibilityChanged(newlyVisibleFilters);
       }
     });
+    settings.updateStream.where((event) => _autoTagSettingKeys.contains(event.key)).listen((_) => onAutoTagSettingsChanged());
     vaults.lockStateChangeNotifier.addListener(_onVaultsChanged);
   }
+
+  static const _autoTagSettingKeys = {
+    SettingKeys.semanticEnabledKey,
+    SettingKeys.semanticAutoTagEnabledKey,
+    SettingKeys.semanticAutoTagShowAsTagsKey,
+  };
 
   @mustCallSuper
   void dispose() {

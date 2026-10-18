@@ -101,6 +101,7 @@
   },
   "semanticSearchFilterLabel": "Search by content",
   "entryActionFindSimilar": "Find similar items",
+  "entryActionApplyAutoTags": "Write automatic tags to file",
 
   "chipActionDelete": "Delete",
   "chipActionRemove": "Remove",

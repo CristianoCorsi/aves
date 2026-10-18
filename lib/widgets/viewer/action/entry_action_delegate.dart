@@ -135,6 +135,7 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
         case .convertMotionPhotoToStillImage:
         case .viewMotionPhotoVideo:
         case .findSimilar:
+        case .applyAutoTags:
           return _metadataActionDelegate.isVisible(
             appMode: appMode,
             targetEntry: targetEntry,
@@ -165,6 +166,7 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
       case .convertMotionPhotoToStillImage:
       case .viewMotionPhotoVideo:
       case .findSimilar:
+      case .applyAutoTags:
         return _metadataActionDelegate.canApply(targetEntry, action);
       case .convert:
       case .rename:
@@ -294,6 +296,7 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
       case .convertMotionPhotoToStillImage:
       case .viewMotionPhotoVideo:
       case .findSimilar:
+      case .applyAutoTags:
         _metadataActionDelegate.onActionSelected(context, targetEntry, collection, action);
       // generic
       case .settings:

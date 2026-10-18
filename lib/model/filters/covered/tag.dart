@@ -16,9 +16,9 @@ class TagFilter extends CollectionFilter with CoveredFilter, TagBaseFilter {
 
   new(this.tag, {super.reversed = false}) {
     if (tag.isEmpty) {
-      _test = (entry) => entry.tags.isEmpty;
+      _test = (entry) => entry.effectiveTags.isEmpty;
     } else {
-      _test = (entry) => entry.tags.contains(tag);
+      _test = (entry) => entry.effectiveTags.contains(tag);
     }
   }
 

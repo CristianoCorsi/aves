@@ -143,9 +143,11 @@ class MediaStoreSource extends CollectionSource {
       final ids = knownLiveEntries.map((entry) => entry.id).toSet();
       await loadCatalogMetadata(ids: ids);
       await loadAddresses(ids: ids);
+      await loadSemanticTags(ids: ids);
     } else {
       await loadCatalogMetadata();
       await loadAddresses();
+      await loadSemanticTags();
 
       // trash
       await loadTrashDetails();

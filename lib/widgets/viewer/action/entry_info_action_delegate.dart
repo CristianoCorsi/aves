@@ -64,6 +64,8 @@ class EntryInfoActionDelegate with FeedbackMixin, PermissionAwareMixin, EntryEdi
       // semantic
       case .findSimilar:
         return appMode.canNavigate && settings.semanticEnabled && semanticModels.isInstalled;
+      case .applyAutoTags:
+        return canWrite && settings.semanticEnabled && settings.semanticAutoTagEnabled && targetEntry.autoTags.isNotEmpty;
       // debug
       case .debug:
         return !kReleaseMode;
@@ -105,6 +107,8 @@ class EntryInfoActionDelegate with FeedbackMixin, PermissionAwareMixin, EntryEdi
       // semantic
       case .findSimilar:
         return true;
+      case .applyAutoTags:
+        return targetEntry.canEditTags;
       default:
         return false;
     }
@@ -140,6 +144,8 @@ class EntryInfoActionDelegate with FeedbackMixin, PermissionAwareMixin, EntryEdi
       // semantic
       case .findSimilar:
         _findSimilar(context, targetEntry);
+      case .applyAutoTags:
+        await _applyTags(context, targetEntry, {...targetEntry.tags, ...targetEntry.autoTags});
       // debug
       case .debug:
         _goToDebug(context, targetEntry);

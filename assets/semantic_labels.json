@@ -1,0 +1,493 @@
+{
+ "version": 1,
+ "labels": [
+  {
+   "en": "animal",
+   "it": "animale"
+  },
+  {
+   "en": "dog",
+   "it": "cane"
+  },
+  {
+   "en": "cat",
+   "it": "gatto"
+  },
+  {
+   "en": "bird",
+   "it": "uccello"
+  },
+  {
+   "en": "horse",
+   "it": "cavallo"
+  },
+  {
+   "en": "fish",
+   "it": "pesce"
+  },
+  {
+   "en": "insect",
+   "it": "insetto"
+  },
+  {
+   "en": "butterfly",
+   "it": "farfalla"
+  },
+  {
+   "en": "cow",
+   "it": "mucca"
+  },
+  {
+   "en": "sheep",
+   "it": "pecora"
+  },
+  {
+   "en": "person",
+   "it": "persona"
+  },
+  {
+   "en": "portrait",
+   "it": "ritratto"
+  },
+  {
+   "en": "selfie",
+   "it": "selfie"
+  },
+  {
+   "en": "group of people",
+   "it": "gruppo di persone"
+  },
+  {
+   "en": "baby",
+   "it": "neonato"
+  },
+  {
+   "en": "child",
+   "it": "bambino"
+  },
+  {
+   "en": "crowd",
+   "it": "folla"
+  },
+  {
+   "en": "wedding",
+   "it": "matrimonio"
+  },
+  {
+   "en": "party",
+   "it": "festa"
+  },
+  {
+   "en": "birthday cake",
+   "it": "torta di compleanno"
+  },
+  {
+   "en": "concert",
+   "it": "concerto"
+  },
+  {
+   "en": "sport",
+   "it": "sport"
+  },
+  {
+   "en": "football",
+   "it": "calcio"
+  },
+  {
+   "en": "running",
+   "it": "corsa"
+  },
+  {
+   "en": "swimming pool",
+   "it": "piscina"
+  },
+  {
+   "en": "bicycle",
+   "it": "bicicletta"
+  },
+  {
+   "en": "car",
+   "it": "automobile"
+  },
+  {
+   "en": "motorcycle",
+   "it": "moto"
+  },
+  {
+   "en": "bus",
+   "it": "autobus"
+  },
+  {
+   "en": "train",
+   "it": "treno"
+  },
+  {
+   "en": "airplane",
+   "it": "aereo"
+  },
+  {
+   "en": "boat",
+   "it": "barca"
+  },
+  {
+   "en": "ship",
+   "it": "nave"
+  },
+  {
+   "en": "road",
+   "it": "strada"
+  },
+  {
+   "en": "bridge",
+   "it": "ponte"
+  },
+  {
+   "en": "building",
+   "it": "edificio"
+  },
+  {
+   "en": "house",
+   "it": "casa"
+  },
+  {
+   "en": "church",
+   "it": "chiesa"
+  },
+  {
+   "en": "castle",
+   "it": "castello"
+  },
+  {
+   "en": "skyscraper",
+   "it": "grattacielo"
+  },
+  {
+   "en": "city",
+   "it": "città"
+  },
+  {
+   "en": "street",
+   "it": "via"
+  },
+  {
+   "en": "night city",
+   "it": "città di notte"
+  },
+  {
+   "en": "monument",
+   "it": "monumento"
+  },
+  {
+   "en": "museum",
+   "it": "museo"
+  },
+  {
+   "en": "statue",
+   "it": "statua"
+  },
+  {
+   "en": "painting",
+   "it": "dipinto"
+  },
+  {
+   "en": "interior",
+   "it": "interni"
+  },
+  {
+   "en": "kitchen",
+   "it": "cucina"
+  },
+  {
+   "en": "bedroom",
+   "it": "camera da letto"
+  },
+  {
+   "en": "living room",
+   "it": "soggiorno"
+  },
+  {
+   "en": "office",
+   "it": "ufficio"
+  },
+  {
+   "en": "restaurant",
+   "it": "ristorante"
+  },
+  {
+   "en": "food",
+   "it": "cibo"
+  },
+  {
+   "en": "meal",
+   "it": "pasto"
+  },
+  {
+   "en": "pizza",
+   "it": "pizza"
+  },
+  {
+   "en": "pasta",
+   "it": "pasta"
+  },
+  {
+   "en": "dessert",
+   "it": "dolce"
+  },
+  {
+   "en": "fruit",
+   "it": "frutta"
+  },
+  {
+   "en": "vegetables",
+   "it": "verdura"
+  },
+  {
+   "en": "drink",
+   "it": "bevanda"
+  },
+  {
+   "en": "coffee",
+   "it": "caffè"
+  },
+  {
+   "en": "wine",
+   "it": "vino"
+  },
+  {
+   "en": "beer",
+   "it": "birra"
+  },
+  {
+   "en": "landscape",
+   "it": "paesaggio"
+  },
+  {
+   "en": "nature",
+   "it": "natura"
+  },
+  {
+   "en": "mountain",
+   "it": "montagna"
+  },
+  {
+   "en": "snow",
+   "it": "neve"
+  },
+  {
+   "en": "beach",
+   "it": "spiaggia"
+  },
+  {
+   "en": "sea",
+   "it": "mare"
+  },
+  {
+   "en": "lake",
+   "it": "lago"
+  },
+  {
+   "en": "river",
+   "it": "fiume"
+  },
+  {
+   "en": "waterfall",
+   "it": "cascata"
+  },
+  {
+   "en": "forest",
+   "it": "bosco"
+  },
+  {
+   "en": "tree",
+   "it": "albero"
+  },
+  {
+   "en": "flower",
+   "it": "fiore"
+  },
+  {
+   "en": "garden",
+   "it": "giardino"
+  },
+  {
+   "en": "park",
+   "it": "parco"
+  },
+  {
+   "en": "field",
+   "it": "campo"
+  },
+  {
+   "en": "desert",
+   "it": "deserto"
+  },
+  {
+   "en": "island",
+   "it": "isola"
+  },
+  {
+   "en": "sky",
+   "it": "cielo"
+  },
+  {
+   "en": "clouds",
+   "it": "nuvole"
+  },
+  {
+   "en": "sunset",
+   "it": "tramonto"
+  },
+  {
+   "en": "sunrise",
+   "it": "alba"
+  },
+  {
+   "en": "night sky",
+   "it": "cielo notturno"
+  },
+  {
+   "en": "moon",
+   "it": "luna"
+  },
+  {
+   "en": "rain",
+   "it": "pioggia"
+  },
+  {
+   "en": "fog",
+   "it": "nebbia"
+  },
+  {
+   "en": "fireworks",
+   "it": "fuochi d'artificio"
+  },
+  {
+   "en": "christmas",
+   "it": "Natale"
+  },
+  {
+   "en": "christmas tree",
+   "it": "albero di Natale"
+  },
+  {
+   "en": "halloween",
+   "it": "Halloween"
+  },
+  {
+   "en": "holiday",
+   "it": "vacanza"
+  },
+  {
+   "en": "travel",
+   "it": "viaggio"
+  },
+  {
+   "en": "camping",
+   "it": "campeggio"
+  },
+  {
+   "en": "hiking",
+   "it": "escursione"
+  },
+  {
+   "en": "skiing",
+   "it": "sci"
+  },
+  {
+   "en": "document",
+   "it": "documento"
+  },
+  {
+   "en": "receipt",
+   "it": "scontrino"
+  },
+  {
+   "en": "screenshot",
+   "it": "screenshot"
+  },
+  {
+   "en": "text",
+   "it": "testo"
+  },
+  {
+   "en": "book",
+   "it": "libro"
+  },
+  {
+   "en": "whiteboard",
+   "it": "lavagna"
+  },
+  {
+   "en": "map",
+   "it": "mappa"
+  },
+  {
+   "en": "ticket",
+   "it": "biglietto"
+  },
+  {
+   "en": "qr code",
+   "it": "codice QR"
+  },
+  {
+   "en": "computer",
+   "it": "computer"
+  },
+  {
+   "en": "phone",
+   "it": "telefono"
+  },
+  {
+   "en": "television",
+   "it": "televisione"
+  },
+  {
+   "en": "toy",
+   "it": "giocattolo"
+  },
+  {
+   "en": "clothes",
+   "it": "vestiti"
+  },
+  {
+   "en": "shoes",
+   "it": "scarpe"
+  },
+  {
+   "en": "car interior",
+   "it": "interno auto"
+  },
+  {
+   "en": "pet",
+   "it": "animale domestico"
+  },
+  {
+   "en": "black and white photo",
+   "it": "foto in bianco e nero"
+  },
+  {
+   "en": "macro photo",
+   "it": "macro"
+  },
+  {
+   "en": "aerial view",
+   "it": "vista aerea"
+  },
+  {
+   "en": "underwater",
+   "it": "subacqueo"
+  },
+  {
+   "en": "drawing",
+   "it": "disegno"
+  },
+  {
+   "en": "meme",
+   "it": "meme"
+  },
+  {
+   "en": "art",
+   "it": "arte"
+  }
+ ]
+}
