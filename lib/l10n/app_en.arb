@@ -89,6 +89,7 @@
   "sourceStateCataloguing": "Cataloguing",
   "sourceStateLocatingCountries": "Locating countries",
   "sourceStateLocatingPlaces": "Locating places",
+  "sourceStateIndexing": "Indexing content",
 
   "chipActionDelete": "Delete",
   "chipActionRemove": "Remove",

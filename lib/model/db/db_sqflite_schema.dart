@@ -12,6 +12,9 @@ class SqfliteLocalMediaDbSchema {
   static const trashTable = 'trash';
   static const videoPlaybackTable = 'videoPlayback';
   static const debugTable = 'debug';
+  static const semanticEmbeddingTable = 'semanticEmbedding';
+  static const semanticTagTable = 'semanticTag';
+  static const semanticLabelTable = 'semanticLabel';
 
   static const allTables = [
     entryTable,
@@ -25,6 +28,9 @@ class SqfliteLocalMediaDbSchema {
     trashTable,
     videoPlaybackTable,
     debugTable,
+    semanticEmbeddingTable,
+    semanticTagTable,
+    semanticLabelTable,
   ];
 
   static Future<void> createLatestVersion(Database db) async {
@@ -140,6 +146,38 @@ class SqfliteLocalMediaDbSchema {
           'CREATE TABLE $debugTable('
           'id INTEGER PRIMARY KEY AUTOINCREMENT'
           ', message TEXT'
+          ')',
+        );
+      case semanticEmbeddingTable:
+        return db.execute(
+          'CREATE TABLE $semanticEmbeddingTable('
+          'id INTEGER PRIMARY KEY'
+          ', modelId TEXT NOT NULL'
+          ', dimension INTEGER NOT NULL'
+          ', scale REAL NOT NULL'
+          ', vector BLOB NOT NULL'
+          ', dateModifiedMillis INTEGER'
+          ')',
+        );
+      case semanticTagTable:
+        return db.execute(
+          'CREATE TABLE $semanticTagTable('
+          'id INTEGER NOT NULL'
+          ', tag TEXT NOT NULL'
+          ', score REAL NOT NULL'
+          ', modelId TEXT NOT NULL'
+          ', PRIMARY KEY (id, tag)'
+          ')',
+        );
+      case semanticLabelTable:
+        return db.execute(
+          'CREATE TABLE $semanticLabelTable('
+          'label TEXT NOT NULL'
+          ', modelId TEXT NOT NULL'
+          ', dimension INTEGER NOT NULL'
+          ', scale REAL NOT NULL'
+          ', vector BLOB NOT NULL'
+          ', PRIMARY KEY (label, modelId, dimension)'
           ')',
         );
       default:

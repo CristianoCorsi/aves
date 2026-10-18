@@ -7,6 +7,7 @@ import 'package:aves/model/dynamic_albums.dart';
 import 'package:aves/model/filters/favourite.dart';
 import 'package:aves/model/filters/mime.dart';
 import 'package:aves/model/grouping/common.dart';
+import 'package:aves/model/semantic/profile.dart';
 import 'package:aves/model/settings/defaults.dart';
 import 'package:aves/model/settings/enums/accessibility_animations.dart';
 import 'package:aves/model/settings/modules/app.dart';
@@ -21,12 +22,14 @@ import 'package:aves/model/settings/modules/map.dart';
 import 'package:aves/model/settings/modules/navigation.dart';
 import 'package:aves/model/settings/modules/privacy.dart';
 import 'package:aves/model/settings/modules/screen_saver.dart';
+import 'package:aves/model/settings/modules/semantic.dart';
 import 'package:aves/model/settings/modules/slideshow.dart';
 import 'package:aves/model/settings/modules/viewer.dart';
 import 'package:aves/model/settings/modules/widget.dart';
 import 'package:aves/ref/bursts.dart';
 import 'package:aves/services/accessibility_service.dart';
 import 'package:aves/services/common/services.dart';
+import 'package:aves/services/device_service.dart';
 import 'package:aves/widgets/common/search/page.dart';
 import 'package:aves/widgets/filter_grids/albums_page.dart';
 import 'package:aves/widgets/filter_grids/countries_page.dart';
@@ -60,6 +63,7 @@ class Settings
         NavigationSettings,
         PrivacySettings,
         ScreenSaverSettings,
+        SemanticSettings,
         SlideshowSettings,
         SubtitlesSettings,
         VideoSettings,
@@ -145,6 +149,11 @@ class Settings
     // performance
     final performanceClass = await deviceService.getMediaPerformanceClass();
     enableBlurEffect = performanceClass >= 31;
+    final ram = await deviceService.getRamSizes({MemorySizeType.total});
+    semanticPerformanceProfile = SemanticPerformanceParams.recommendedProfile(
+      totalRamBytes: ram[MemorySizeType.total] ?? 0,
+      mediaPerformanceClass: performanceClass,
+    );
 
     final androidInfo = await DeviceInfoPlugin().androidInfo;
     final manufacturer = androidInfo.manufacturer.toLowerCase();
@@ -342,6 +351,12 @@ class Settings
           case SettingKeys.convertQualityKey:
           case SettingKeys.screenSaverIntervalKey:
           case SettingKeys.slideshowIntervalKey:
+          case SettingKeys.semanticVectorDimensionKey:
+          case SettingKeys.semanticThumbnailSizeKey:
+          case SettingKeys.semanticMaxItemsPerRunKey:
+          case SettingKeys.semanticItemDelayMillisKey:
+          case SettingKeys.semanticMaxResultsKey:
+          case SettingKeys.semanticAutoTagMaxPerItemKey:
             if (newValue is int) {
               store.setInt(key, newValue);
             } else {
@@ -349,6 +364,8 @@ class Settings
             }
           case SettingKeys.subtitleFontSizeKey:
           case SettingKeys.infoMapZoomKey:
+          case SettingKeys.semanticMinSimilarityKey:
+          case SettingKeys.semanticAutoTagThresholdKey:
             if (newValue is double) {
               store.setDouble(key, newValue);
             } else {
@@ -404,6 +421,13 @@ class Settings
           case SettingKeys.slideshowShuffleKey:
           case SettingKeys.slideshowFillScreenKey:
           case SettingKeys.slideshowAnimatedZoomEffectKey:
+          case SettingKeys.semanticEnabledKey:
+          case SettingKeys.semanticDownloadWifiOnlyKey:
+          case SettingKeys.semanticIndexVideosKey:
+          case SettingKeys.semanticRequireIdleKey:
+          case SettingKeys.semanticSearchByDefaultKey:
+          case SettingKeys.semanticAutoTagEnabledKey:
+          case SettingKeys.semanticAutoTagShowAsTagsKey:
             if (newValue is bool) {
               store.setBool(key, newValue);
             } else {
@@ -454,6 +478,10 @@ class Settings
           case SettingKeys.screenSaverVideoPlaybackKey:
           case SettingKeys.slideshowTransitionKey:
           case SettingKeys.slideshowVideoPlaybackKey:
+          case SettingKeys.semanticIndexScopeKey:
+          case SettingKeys.semanticBackgroundModeKey:
+          case SettingKeys.semanticPerformanceProfileKey:
+          case SettingKeys.semanticBackendKey:
             if (newValue is String) {
               store.setString(key, newValue);
             } else {
@@ -475,6 +503,9 @@ class Settings
           case SettingKeys.videoThumbnailMethodsKey:
           case SettingKeys.videoControlActionsKey:
           case SettingKeys.screenSaverCollectionFiltersKey:
+          case SettingKeys.semanticIncludedAlbumsKey:
+          case SettingKeys.semanticExcludedAlbumsKey:
+          case SettingKeys.semanticAutoTagCustomLabelsKey:
             if (newValue is List) {
               store.setStringList(key, newValue.cast<String>());
             } else {

@@ -16,7 +16,7 @@ import 'package:aves_utils/aves_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:leak_tracker/leak_tracker.dart';
 
-enum EntryDataType { basic, aspectRatio, catalog, address, references }
+enum EntryDataType { basic, aspectRatio, catalog, address, references, semantic }
 
 class AvesEntry with AvesEntryBase {
   @override

@@ -125,6 +125,23 @@ class SettingsDefaults {
   // bin
   static const enableBin = true;
 
+  // semantic search
+  static const semanticEnabled = false;
+  static const semanticDownloadWifiOnly = true;
+  static const semanticIndexScope = SemanticIndexScope.selected;
+  static const semanticIndexVideos = false;
+  static const semanticBackgroundMode = SemanticBackgroundMode.whileCharging;
+  static const semanticRequireIdle = true;
+  static const semanticPerformanceProfile = SemanticPerformanceProfile.balanced; // `semanticPerformanceProfile` has a contextual default value
+  static const semanticMaxResults = 200;
+  // similarity values are to be calibrated with the actual model
+  static const semanticMinSimilarity = .2;
+  static const semanticSearchByDefault = false;
+  static const semanticAutoTagEnabled = false;
+  static const semanticAutoTagShowAsTags = true;
+  static const semanticAutoTagMaxPerItem = 5;
+  static const semanticAutoTagThreshold = .25;
+
   // accessibility
   static const showPinchGestureAlternatives = false;
   static const accessibilityAnimations = AccessibilityAnimations.system;

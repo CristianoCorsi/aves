@@ -12,6 +12,9 @@ class SettingKeys {
     searchHistoryKey,
     recentDestinationAlbumsKey,
     recentTagsKey,
+    // semantic
+    semanticModelPathKey,
+    semanticModelIdKey,
     // debug
     debugShowViewerTilesKey,
   };
@@ -165,6 +168,32 @@ class SettingKeys {
 
   // bin
   static const enableBinKey = 'enable_bin';
+
+  // semantic search
+  static const semanticEnabledKey = 'semantic_enabled';
+  static const semanticModelPathKey = 'semantic_model_path';
+  static const semanticModelIdKey = 'semantic_model_id';
+  static const semanticDownloadWifiOnlyKey = 'semantic_download_wifi_only';
+  static const semanticIndexScopeKey = 'semantic_index_scope';
+  static const semanticIncludedAlbumsKey = 'semantic_included_albums';
+  static const semanticExcludedAlbumsKey = 'semantic_excluded_albums';
+  static const semanticIndexVideosKey = 'semantic_index_videos';
+  static const semanticBackgroundModeKey = 'semantic_background_mode';
+  static const semanticRequireIdleKey = 'semantic_require_idle';
+  static const semanticPerformanceProfileKey = 'semantic_performance_profile';
+  static const semanticBackendKey = 'semantic_backend';
+  static const semanticVectorDimensionKey = 'semantic_vector_dimension';
+  static const semanticThumbnailSizeKey = 'semantic_thumbnail_size';
+  static const semanticMaxItemsPerRunKey = 'semantic_max_items_per_run';
+  static const semanticItemDelayMillisKey = 'semantic_item_delay_millis';
+  static const semanticMaxResultsKey = 'semantic_max_results';
+  static const semanticMinSimilarityKey = 'semantic_min_similarity';
+  static const semanticSearchByDefaultKey = 'semantic_search_by_default';
+  static const semanticAutoTagEnabledKey = 'semantic_auto_tag_enabled';
+  static const semanticAutoTagShowAsTagsKey = 'semantic_auto_tag_show_as_tags';
+  static const semanticAutoTagMaxPerItemKey = 'semantic_auto_tag_max_per_item';
+  static const semanticAutoTagThresholdKey = 'semantic_auto_tag_threshold';
+  static const semanticAutoTagCustomLabelsKey = 'semantic_auto_tag_custom_labels';
 
   // accessibility
   static const showPinchGestureAlternativesKey = 'show_pinch_gesture_alternatives';

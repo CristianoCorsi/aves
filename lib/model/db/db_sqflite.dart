@@ -11,6 +11,7 @@ import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/metadata/address.dart';
 import 'package:aves/model/metadata/catalog.dart';
 import 'package:aves/model/metadata/trash.dart';
+import 'package:aves/model/semantic/rows.dart';
 import 'package:aves/model/vaults/details.dart';
 import 'package:aves/model/viewer/video_playback.dart';
 import 'package:aves/services/common/services.dart';
@@ -35,6 +36,9 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
   static const trashTable = SqfliteLocalMediaDbSchema.trashTable;
   static const videoPlaybackTable = SqfliteLocalMediaDbSchema.videoPlaybackTable;
   static const debugTable = SqfliteLocalMediaDbSchema.debugTable;
+  static const semanticEmbeddingTable = SqfliteLocalMediaDbSchema.semanticEmbeddingTable;
+  static const semanticTagTable = SqfliteLocalMediaDbSchema.semanticTagTable;
+  static const semanticLabelTable = SqfliteLocalMediaDbSchema.semanticLabelTable;
 
   static const _entryInsertSliceMaxCount = 10000; // number of entries
   static const _queryCursorBufferSize = 1000; // number of rows
@@ -49,7 +53,7 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
       await path,
       onCreate: (db, version) => SqfliteLocalMediaDbSchema.createLatestVersion(db),
       onUpgrade: LocalMediaDbUpgrader.upgradeDb,
-      version: 17,
+      version: 18,
     );
 
     final maxIdRows = await _db.rawQuery('SELECT MAX(id) AS maxId FROM $entryTable');
@@ -98,7 +102,122 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
         batch.delete(trashTable, where: where, whereArgs: whereArgs);
         batch.delete(videoPlaybackTable, where: where, whereArgs: whereArgs);
       }
+      if (_dataTypes.contains(EntryDataType.semantic)) {
+        batch.delete(semanticEmbeddingTable, where: where, whereArgs: whereArgs);
+        batch.delete(semanticTagTable, where: where, whereArgs: whereArgs);
+      }
     });
+    await batch.commit(noResult: true);
+  }
+
+  // semantic
+
+  @override
+  Future<void> clearSemanticData() async {
+    final batch = _db.batch();
+    batch.delete(semanticEmbeddingTable, where: '1');
+    batch.delete(semanticTagTable, where: '1');
+    batch.delete(semanticLabelTable, where: '1');
+    await batch.commit(noResult: true);
+    debugPrint('$runtimeType clearSemanticData');
+  }
+
+  @override
+  Future<Map<int, int?>> loadSemanticIndexState(String modelId, int dimension) async {
+    final result = <int, int?>{};
+    final cursor = await _db.queryCursor(
+      semanticEmbeddingTable,
+      columns: ['id', 'dateModifiedMillis'],
+      where: 'modelId = ? AND dimension = ?',
+      whereArgs: [modelId, dimension],
+      bufferSize: _queryCursorBufferSize,
+    );
+    while (await cursor.moveNext()) {
+      final row = cursor.current;
+      result[row['id'] as int] = row['dateModifiedMillis'] as int?;
+    }
+    return result;
+  }
+
+  @override
+  Future<List<SemanticEmbeddingRow>> loadSemanticEmbeddings(String modelId, int dimension, {Set<int>? ids}) async {
+    final result = <SemanticEmbeddingRow>[];
+    if (ids != null && ids.isEmpty) return result;
+
+    var where = 'modelId = ? AND dimension = ?';
+    if (ids != null) {
+      // TODO TLAD [perf] split queries when `IN` parameter is large
+      where += ' AND id IN (${ids.join(',')})';
+    }
+    final cursor = await _db.queryCursor(semanticEmbeddingTable, where: where, whereArgs: [modelId, dimension], bufferSize: _queryCursorBufferSize);
+    while (await cursor.moveNext()) {
+      result.add(SemanticEmbeddingRow.fromMap(cursor.current));
+    }
+    return result;
+  }
+
+  @override
+  Future<void> saveSemanticEmbeddings(Set<SemanticEmbeddingRow> rows) async {
+    if (rows.isEmpty) return;
+    final batch = _db.batch();
+    rows.forEach((row) => batch.insert(semanticEmbeddingTable, row.toMap(), conflictAlgorithm: ConflictAlgorithm.replace));
+    await batch.commit(noResult: true);
+  }
+
+  @override
+  Future<int> removeObsoleteSemanticEmbeddings(String modelId, int dimension) async {
+    final count = await _db.delete(semanticEmbeddingTable, where: 'modelId != ? OR dimension != ?', whereArgs: [modelId, dimension]);
+    if (count > 0) {
+      debugPrint('$runtimeType removeObsoleteSemanticEmbeddings deleted $count rows');
+    }
+    return count;
+  }
+
+  @override
+  Future<List<SemanticTagRow>> loadSemanticTags({Set<int>? ids}) async {
+    final result = <SemanticTagRow>[];
+    if (ids != null && ids.isEmpty) return result;
+
+    // TODO TLAD [perf] split queries when `IN` parameter is large
+    final where = ids != null ? 'id IN (${ids.join(',')})' : null;
+    final cursor = await _db.queryCursor(semanticTagTable, where: where, bufferSize: _queryCursorBufferSize);
+    while (await cursor.moveNext()) {
+      result.add(SemanticTagRow.fromMap(cursor.current));
+    }
+    return result;
+  }
+
+  @override
+  Future<void> replaceSemanticTags(Set<int> ids, Set<SemanticTagRow> rows) async {
+    if (ids.isEmpty && rows.isEmpty) return;
+    final batch = _db.batch();
+    ids.forEach((id) => batch.delete(semanticTagTable, where: 'id = ?', whereArgs: [id]));
+    rows.forEach((row) => batch.insert(semanticTagTable, row.toMap(), conflictAlgorithm: ConflictAlgorithm.replace));
+    await batch.commit(noResult: true);
+  }
+
+  @override
+  Future<void> removeSemanticTag(int id, String tag) async {
+    await _db.delete(semanticTagTable, where: 'id = ? AND tag = ?', whereArgs: [id, tag]);
+  }
+
+  @override
+  Future<void> clearSemanticTags() async {
+    final count = await _db.delete(semanticTagTable, where: '1');
+    debugPrint('$runtimeType clearSemanticTags deleted $count rows');
+  }
+
+  @override
+  Future<List<SemanticLabelRow>> loadSemanticLabels(String modelId, int dimension) async {
+    final rows = await _db.query(semanticLabelTable, where: 'modelId = ? AND dimension = ?', whereArgs: [modelId, dimension]);
+    return rows.map(SemanticLabelRow.fromMap).toList();
+  }
+
+  @override
+  Future<void> saveSemanticLabels(Set<SemanticLabelRow> rows) async {
+    if (rows.isEmpty) return;
+    final batch = _db.batch();
+    rows.forEach((row) => batch.insert(semanticLabelTable, row.toMap(), conflictAlgorithm: ConflictAlgorithm.replace));
     await batch.commit(noResult: true);
   }
 

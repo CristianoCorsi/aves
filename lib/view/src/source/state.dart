@@ -8,6 +8,7 @@ extension ExtraSourceStateView on SourceState {
       .cataloguing => l10n.sourceStateCataloguing,
       .locatingCountries => l10n.sourceStateLocatingCountries,
       .locatingPlaces => l10n.sourceStateLocatingPlaces,
+      .indexing => l10n.sourceStateIndexing,
       .ready => null,
     };
   }

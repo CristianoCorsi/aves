@@ -87,3 +87,11 @@ enum WidgetShape {
   bumpyRows,
   bumpyColumns,
 }
+
+enum SemanticBackend { auto, cpu, gpu, npu }
+
+enum SemanticBackgroundMode { off, whileCharging, always }
+
+enum SemanticIndexScope { all, selected }
+
+enum SemanticPerformanceProfile { low, balanced, high, custom }

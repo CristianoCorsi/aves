@@ -7,6 +7,7 @@ import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/metadata/address.dart';
 import 'package:aves/model/metadata/catalog.dart';
 import 'package:aves/model/metadata/trash.dart';
+import 'package:aves/model/semantic/rows.dart';
 import 'package:aves/model/vaults/details.dart';
 import 'package:flutter/foundation.dart';
 import 'package:test/fake.dart';
@@ -138,4 +139,21 @@ class FakeAvesDb extends Fake implements LocalMediaDb {
 
   @override
   Future<void> removeVideoPlayback(Set<int> ids) => SynchronousFuture(null);
+
+  // semantic
+
+  @override
+  Future<Map<int, int?>> loadSemanticIndexState(String modelId, int dimension) => SynchronousFuture({});
+
+  @override
+  Future<List<SemanticEmbeddingRow>> loadSemanticEmbeddings(String modelId, int dimension, {Set<int>? ids}) => SynchronousFuture([]);
+
+  @override
+  Future<void> saveSemanticEmbeddings(Set<SemanticEmbeddingRow> rows) => SynchronousFuture(null);
+
+  @override
+  Future<List<SemanticTagRow>> loadSemanticTags({Set<int>? ids}) => SynchronousFuture([]);
+
+  @override
+  Future<void> replaceSemanticTags(Set<int> ids, Set<SemanticTagRow> rows) => SynchronousFuture(null);
 }

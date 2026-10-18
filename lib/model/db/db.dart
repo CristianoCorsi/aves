@@ -6,6 +6,7 @@ import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/metadata/address.dart';
 import 'package:aves/model/metadata/catalog.dart';
 import 'package:aves/model/metadata/trash.dart';
+import 'package:aves/model/semantic/rows.dart';
 import 'package:aves/model/vaults/details.dart';
 import 'package:aves/model/viewer/video_playback.dart';
 
@@ -137,6 +138,33 @@ abstract class LocalMediaDb {
   Future<void> addVideoPlayback(Set<VideoPlaybackRow> rows);
 
   Future<void> removeVideoPlayback(Set<int> ids);
+
+  // semantic
+
+  Future<void> clearSemanticData();
+
+  // returns modification dates by entry ID, for vectors of the given model and dimension
+  Future<Map<int, int?>> loadSemanticIndexState(String modelId, int dimension);
+
+  Future<List<SemanticEmbeddingRow>> loadSemanticEmbeddings(String modelId, int dimension, {Set<int>? ids});
+
+  Future<void> saveSemanticEmbeddings(Set<SemanticEmbeddingRow> rows);
+
+  // removes vectors that are not of the given model and dimension
+  Future<int> removeObsoleteSemanticEmbeddings(String modelId, int dimension);
+
+  Future<List<SemanticTagRow>> loadSemanticTags({Set<int>? ids});
+
+  // replaces all tags of the given entries
+  Future<void> replaceSemanticTags(Set<int> ids, Set<SemanticTagRow> rows);
+
+  Future<void> removeSemanticTag(int id, String tag);
+
+  Future<void> clearSemanticTags();
+
+  Future<List<SemanticLabelRow>> loadSemanticLabels(String modelId, int dimension);
+
+  Future<void> saveSemanticLabels(Set<SemanticLabelRow> rows);
 
   // debug
 

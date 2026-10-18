@@ -58,6 +58,8 @@ class LocalMediaDbUpgrader {
           await _upgradeFrom15(db);
         case 16:
           await _upgradeFrom16(db);
+        case 17:
+          await _upgradeFrom17(db);
       }
       oldVersion++;
     }
@@ -595,5 +597,13 @@ class LocalMediaDbUpgrader {
 
     await db.execute('ALTER TABLE $dateTakenTable ADD COLUMN timeZoneOffsetMinutes INTEGER;');
     await db.execute('ALTER TABLE $metadataTable ADD COLUMN timeZoneOffsetMinutes INTEGER;');
+  }
+
+  static Future<void> _upgradeFrom17(Database db) async {
+    debugPrint('upgrading DB from v17');
+
+    await SqfliteLocalMediaDbSchema.createTable(db, SqfliteLocalMediaDbSchema.semanticEmbeddingTable);
+    await SqfliteLocalMediaDbSchema.createTable(db, SqfliteLocalMediaDbSchema.semanticTagTable);
+    await SqfliteLocalMediaDbSchema.createTable(db, SqfliteLocalMediaDbSchema.semanticLabelTable);
   }
 }
