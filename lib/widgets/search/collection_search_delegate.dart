@@ -12,6 +12,7 @@ import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/filters/mime.dart';
 import 'package:aves/model/filters/missing.dart';
 import 'package:aves/model/filters/query.dart';
+import 'package:aves/model/filters/semantic.dart';
 import 'package:aves/model/filters/rating.dart';
 import 'package:aves/model/filters/recent.dart';
 import 'package:aves/model/filters/type.dart';
@@ -21,6 +22,7 @@ import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/album.dart';
 import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/model/source/collection_source.dart';
+import 'package:aves/services/semantic/model_service.dart';
 import 'package:aves/model/source/location/country.dart';
 import 'package:aves/model/source/location/place.dart';
 import 'package:aves/model/source/tag.dart';
@@ -115,6 +117,7 @@ class CollectionSearchDelegate extends AvesSearchDelegate with FeedbackMixin, Va
           valueListenable: _expandedSectionNotifier,
           builder: (context, expandedSection, child) {
             final queryFilter = _buildQueryFilter(false);
+            final semanticFilter = _buildSemanticFilter();
             return Selector<Settings, Set<CollectionFilter>>(
               selector: (context, s) => s.hiddenFilters,
               builder: (context, hiddenFilters, child) {
@@ -138,12 +141,16 @@ class CollectionSearchDelegate extends AvesSearchDelegate with FeedbackMixin, Va
                     _buildFilterRow(
                       context: context,
                       filters: [
-                        queryFilter,
-                        ...visibleTypeFilters,
-                      ].nonNulls.where(isVisible).toList(),
+                        ...[
+                          queryFilter,
+                          ...visibleTypeFilters,
+                        ].nonNulls.where(isVisible),
+                        // semantic matches do not depend on the label
+                        ?semanticFilter,
+                      ],
                       // usually perform hero animation only on tapped chips,
                       // but we also need to animate the query chip when it is selected by submitting the search query
-                      heroTypeBuilder: (filter) => filter == queryFilter ? HeroType.always : HeroType.onTap,
+                      heroTypeBuilder: (filter) => filter == queryFilter || filter == semanticFilter ? HeroType.always : HeroType.onTap,
                     ),
                     if (upQuery.isEmpty && history.isNotEmpty)
                       _buildFilterRow(
@@ -345,7 +352,8 @@ class CollectionSearchDelegate extends AvesSearchDelegate with FeedbackMixin, Va
         // `buildResults` is called in the build phase,
         // so we post the call that will filter the collection
         // and possibly trigger a rebuild here
-        _select(context, {_buildQueryFilter(true)});
+        final semanticFilter = settings.semanticSearchByDefault ? _buildSemanticFilter() : null;
+        _select(context, {semanticFilter ?? _buildQueryFilter(true)});
       });
     }
     return const SizedBox();
@@ -355,6 +363,12 @@ class CollectionSearchDelegate extends AvesSearchDelegate with FeedbackMixin, Va
     final calendar = settings.avesLocale.calendar;
     final cleanQuery = query.trim();
     return cleanQuery.isNotEmpty ? QueryFilter(cleanQuery, calendar, colorful: colorful) : null;
+  }
+
+  SemanticFilter? _buildSemanticFilter() {
+    if (!settings.semanticEnabled || !semanticModels.isInstalled) return null;
+    final cleanQuery = query.trim();
+    return cleanQuery.isNotEmpty ? SemanticFilter.query(cleanQuery) : null;
   }
 
   Future<void> _select(BuildContext context, Set<CollectionFilter?> filters) async {

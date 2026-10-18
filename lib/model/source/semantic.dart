@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/semantic/rows.dart';
 import 'package:aves/model/semantic/scope.dart';
+import 'package:aves/model/semantic/search.dart';
 import 'package:aves/model/semantic/vector.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/analysis_controller.dart';
@@ -58,6 +59,7 @@ mixin SemanticMixin on SourceBase {
   void invalidateSemanticMatrix() {
     _semanticMatrix = null;
     _semanticMatrixModelId = null;
+    semanticSearch.clear();
     eventBus.fire(SemanticIndexChangedEvent());
   }
 

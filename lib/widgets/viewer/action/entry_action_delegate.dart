@@ -134,6 +134,7 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
         case .showGeoTiffOnMap:
         case .convertMotionPhotoToStillImage:
         case .viewMotionPhotoVideo:
+        case .findSimilar:
           return _metadataActionDelegate.isVisible(
             appMode: appMode,
             targetEntry: targetEntry,
@@ -163,6 +164,7 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
       case .showGeoTiffOnMap:
       case .convertMotionPhotoToStillImage:
       case .viewMotionPhotoVideo:
+      case .findSimilar:
         return _metadataActionDelegate.canApply(targetEntry, action);
       case .convert:
       case .rename:
@@ -291,6 +293,7 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
       case .showGeoTiffOnMap:
       case .convertMotionPhotoToStillImage:
       case .viewMotionPhotoVideo:
+      case .findSimilar:
         _metadataActionDelegate.onActionSelected(context, targetEntry, collection, action);
       // generic
       case .settings:

@@ -90,6 +90,17 @@
   "sourceStateLocatingCountries": "Locating countries",
   "sourceStateLocatingPlaces": "Locating places",
   "sourceStateIndexing": "Indexing content",
+  "semanticSimilarToFilterLabel": "Similar to {title}",
+  "@semanticSimilarToFilterLabel": {
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "IMG_0042"
+      }
+    }
+  },
+  "semanticSearchFilterLabel": "Search by content",
+  "entryActionFindSimilar": "Find similar items",
 
   "chipActionDelete": "Delete",
   "chipActionRemove": "Remove",

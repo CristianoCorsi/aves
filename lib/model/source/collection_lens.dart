@@ -13,8 +13,10 @@ import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/favourite.dart';
 import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/filters/query.dart';
+import 'package:aves/model/filters/semantic.dart';
 import 'package:aves/model/filters/rating.dart';
 import 'package:aves/model/filters/trash.dart';
+import 'package:aves/model/semantic/search.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/model/source/events.dart';
@@ -93,6 +95,13 @@ class CollectionLens with ChangeNotifier {
       _subscriptions.add(sourceEvents.on<FilterVisibilityChangedEvent>().listen((e) => refresh()));
       _subscriptions.add(sourceEvents.on<CatalogMetadataChangedEvent>().listen((e) => refresh()));
       _subscriptions.add(
+        sourceEvents.on<SemanticSearchResolvedEvent>().listen((e) {
+          if (_semanticFilters.any((filter) => filter.key == e.key)) {
+            refresh();
+          }
+        }),
+      );
+      _subscriptions.add(
         sourceEvents.on<AddressMetadataChangedEvent>().listen((e) {
           if (this.filters.any((filter) => filter is LocationFilter)) {
             refresh();
@@ -102,6 +111,7 @@ class CollectionLens with ChangeNotifier {
       favourites.addListener(_onFavouritesChanged);
     }
     _subscriptions.add(settings.updateStream.where(_isLayoutFactorEvent).listen((_) => _onLayoutFactorChanged()));
+    _resolveSemanticFilters();
     refresh();
   }
 
@@ -200,8 +210,16 @@ class CollectionLens with ChangeNotifier {
   }
 
   void _onFilterChanged() {
+    _resolveSemanticFilters();
     refresh();
     filterChangeNotifier.notify();
+  }
+
+  Iterable<SemanticFilter> get _semanticFilters => filters.whereType<SemanticFilter>();
+
+  // semantic filters are resolved asynchronously, and the lens is refreshed when results are ready
+  void _resolveSemanticFilters() {
+    _semanticFilters.where((filter) => !semanticSearch.isResolved(filter)).forEach((filter) => semanticSearch.resolve(filter, source));
   }
 
   void _applyFilters() {

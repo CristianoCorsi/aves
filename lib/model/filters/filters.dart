@@ -20,6 +20,7 @@ import 'package:aves/model/filters/placeholder.dart';
 import 'package:aves/model/filters/query.dart';
 import 'package:aves/model/filters/rating.dart';
 import 'package:aves/model/filters/recent.dart';
+import 'package:aves/model/filters/semantic.dart';
 import 'package:aves/model/filters/trash.dart';
 import 'package:aves/model/filters/type.dart';
 import 'package:aves/model/filters/weekday.dart';
@@ -35,6 +36,7 @@ abstract class CollectionFilter extends Equatable implements Comparable<Collecti
   static const List<String> categoryOrder = [
     TrashFilter.type,
     QueryFilter.type,
+    SemanticFilter.type,
     SetAndFilter.type,
     SetOrFilter.type,
     MimeFilter.type,
@@ -97,6 +99,8 @@ abstract class CollectionFilter extends Equatable implements Comparable<Collecti
         return RatingFilter.fromMap(jsonMap);
       case RecentlyAddedFilter.type:
         return RecentlyAddedFilter.fromMap(jsonMap);
+      case SemanticFilter.type:
+        return SemanticFilter.fromMap(jsonMap);
       case StoredAlbumFilter.type:
         return StoredAlbumFilter.fromMap(jsonMap);
       case TagFilter.type:

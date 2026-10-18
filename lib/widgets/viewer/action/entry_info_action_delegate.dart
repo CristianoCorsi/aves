@@ -8,11 +8,15 @@ import 'package:aves/model/entry/extensions/metadata_edition.dart';
 import 'package:aves/model/entry/extensions/multipage.dart';
 import 'package:aves/model/entry/extensions/props.dart';
 import 'package:aves/model/filters/filters.dart';
+import 'package:aves/model/filters/semantic.dart';
 import 'package:aves/model/media/geotiff.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_lens.dart';
+import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/ref/mime_types.dart';
 import 'package:aves/services/common/services.dart';
+import 'package:aves/services/semantic/model_service.dart';
+import 'package:aves/widgets/collection/collection_page.dart';
 import 'package:aves/widgets/common/action_mixins/entry_editor.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
 import 'package:aves/widgets/common/action_mixins/permission_aware.dart';
@@ -25,6 +29,7 @@ import 'package:aves/widgets/viewer/info/embedded/notifications.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:provider/provider.dart';
 
 class EntryInfoActionDelegate with FeedbackMixin, PermissionAwareMixin, EntryEditorMixin, SingleEntryEditorMixin {
   final StreamController<ActionEvent<EntryAction>> _eventStreamController = StreamController.broadcast();
@@ -56,6 +61,9 @@ class EntryInfoActionDelegate with FeedbackMixin, PermissionAwareMixin, EntryEdi
         return canWrite && targetEntry.isMotionPhoto;
       case .viewMotionPhotoVideo:
         return appMode.canNavigate && targetEntry.isMotionPhoto;
+      // semantic
+      case .findSimilar:
+        return appMode.canNavigate && settings.semanticEnabled && semanticModels.isInstalled;
       // debug
       case .debug:
         return !kReleaseMode;
@@ -94,6 +102,9 @@ class EntryInfoActionDelegate with FeedbackMixin, PermissionAwareMixin, EntryEdi
         return targetEntry.canEdit && targetEntry.isXmpEditionSupported;
       case .viewMotionPhotoVideo:
         return true;
+      // semantic
+      case .findSimilar:
+        return true;
       default:
         return false;
     }
@@ -126,6 +137,9 @@ class EntryInfoActionDelegate with FeedbackMixin, PermissionAwareMixin, EntryEdi
         await _convertMotionPhotoToStillImage(context, targetEntry);
       case .viewMotionPhotoVideo:
         OpenEmbeddedDataNotification.motionPhotoVideo().dispatch(context);
+      // semantic
+      case .findSimilar:
+        _findSimilar(context, targetEntry);
       // debug
       case .debug:
         _goToDebug(context, targetEntry);
@@ -271,6 +285,19 @@ class EntryInfoActionDelegate with FeedbackMixin, PermissionAwareMixin, EntryEdi
         builder: (context) => MapPage(
           collection: mapCollection,
           overlayEntry: mappedGeoTiff,
+        ),
+      ),
+    );
+  }
+
+  void _findSimilar(BuildContext context, AvesEntry targetEntry) {
+    final source = context.read<CollectionSource>();
+    Navigator.maybeOf(context)?.push(
+      MaterialPageRoute(
+        settings: const RouteSettings(name: CollectionPage.routeName),
+        builder: (context) => CollectionPage(
+          source: source,
+          filters: {SemanticFilter.similar(targetEntry.id, entryLabel: targetEntry.bestTitle)},
         ),
       ),
     );

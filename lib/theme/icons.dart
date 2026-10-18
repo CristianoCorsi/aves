@@ -154,6 +154,8 @@ class AIcons {
   static const rotateRight = Symbols.rotate_right;
   static const rotateScreen = Symbols.screen_rotation;
   static const search = Symbols.search;
+  static const semantic = Symbols.auto_awesome;
+  static const semanticSimilar = Symbols.auto_awesome_mosaic;
   static const select = Symbols.select_all;
   static const setAs = Symbols.wallpaper;
   static const setBoundEnd = MdiIcons.rayEnd;

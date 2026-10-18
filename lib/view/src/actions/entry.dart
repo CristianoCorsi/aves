@@ -67,6 +67,8 @@ extension ExtraEntryActionView on EntryAction {
       // metadata / motion photo
       .convertMotionPhotoToStillImage => l10n.entryActionConvertMotionPhotoToStillImage,
       .viewMotionPhotoVideo => l10n.entryActionViewMotionPhotoVideo,
+      // semantic
+      .findSimilar => l10n.entryActionFindSimilar,
       // generic
       .settings => l10n.viewerActionSettings,
       .debug => 'Debug',
@@ -146,6 +148,8 @@ extension ExtraEntryActionView on EntryAction {
       // metadata / motion photo
       .convertMotionPhotoToStillImage => AIcons.convertToStillImage,
       .viewMotionPhotoVideo => AIcons.openVideoPart,
+      // semantic
+      .findSimilar => AIcons.semanticSimilar,
       // generic
       .settings => AIcons.settings,
       .debug => AIcons.debug,

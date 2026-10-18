@@ -52,6 +52,8 @@ enum EntryAction {
   // metadata / motion photo
   convertMotionPhotoToStillImage,
   viewMotionPhotoVideo,
+  // semantic
+  findSimilar,
   // generic
   settings,
   debug,
@@ -142,6 +144,7 @@ class EntryActions {
   ];
 
   static const formatSpecificMetadataActions = <EntryAction>[
+    .findSimilar,
     .showGeoTiffOnMap,
     .convertMotionPhotoToStillImage,
     .viewMotionPhotoVideo,

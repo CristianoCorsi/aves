@@ -2,9 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:aves/model/filters/covered/stored_album.dart';
+import 'package:aves/model/filters/filters.dart';
+import 'package:aves/model/filters/semantic.dart';
+import 'package:aves/model/semantic/search.dart';
 import 'package:aves/model/semantic/scope.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/analysis_controller.dart';
+import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/model/source/media_store_source.dart';
 import 'package:aves/services/common/services.dart';
@@ -172,5 +176,42 @@ void main() {
     expect(db.semanticEmbeddings.length, 2);
     await source.indexSemanticEntries(AnalysisController(), source.allEntries);
     expect(db.semanticEmbeddings.length, 4);
+  });
+
+  test('semantic filter serialization', () {
+    final query = SemanticFilter.query('dog on the beach');
+    final similar = SemanticFilter.similar(42, entryLabel: 'IMG_42');
+    expect(CollectionFilter.fromJson(query.toJsonString()), query);
+    expect(CollectionFilter.fromJson(similar.toJsonString()), similar);
+    expect(query.key, isNot(similar.key));
+    expect(query.isCompatible(SemanticFilter.query('cat')), isFalse);
+  });
+
+  test('semantic search resolves text queries and similar items in collection', () async {
+    final a1 = FakeMediaStoreService.newImage(albumA, 'a1');
+    final a2 = FakeMediaStoreService.newImage(albumA, 'a2');
+    (mediaStoreService as FakeMediaStoreService).entries = {a1, a2};
+    settings.semanticIndexScope = SemanticIndexScope.all;
+    semanticSearch.clear();
+
+    final source = await initSource();
+    final a1Id = source.allEntries.firstWhere((entry) => entry.uri == a1.uri).id;
+
+    // fake engine maps both image of ID `n` and text `n` to the same vector
+    final queryFilter = SemanticFilter.query('$a1Id');
+    final lens = CollectionLens(source: source, filters: {queryFilter});
+    expect(lens.sortedEntries, isEmpty);
+
+    final resolved = source.eventBus.on<SemanticSearchResolvedEvent>().first;
+    await resolved;
+    expect(lens.sortedEntries.map((entry) => entry.id), [a1Id]);
+    expect(semanticSearch.scoreOf(queryFilter, a1Id), closeTo(1, 1e-2));
+    lens.dispose();
+
+    final similarFilter = SemanticFilter.similar(a1Id);
+    await semanticSearch.resolve(similarFilter, source);
+    // reference item is excluded, and other item is not similar enough
+    expect(semanticSearch.isResolved(similarFilter), isTrue);
+    expect(semanticSearch.contains(similarFilter, a1Id), isFalse);
   });
 }
