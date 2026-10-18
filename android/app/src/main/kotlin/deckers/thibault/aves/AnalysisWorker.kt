@@ -46,12 +46,20 @@ class AnalysisWorker(context: Context, parameters: WorkerParameters) : Coroutine
     private var flutterEngine: FlutterEngine? = null
     private var backgroundChannel: MethodChannel? = null
 
+    // periodic runs are scheduled with constraints (e.g. charging) and run in the background,
+    // without foreground service, as it cannot be started from the background since Android 12
+    private val isPeriodic: Boolean
+        get() = inputData.getBoolean(KEY_PERIODIC, false)
+
     override suspend fun doWork(): Result {
-        Log.i(LOG_TAG, "Start analysis worker $id")
-        createNotificationChannel()
-        val foregroundInfo = createForegroundInfo()
+        Log.i(LOG_TAG, "Start analysis worker $id periodic=$isPeriodic")
+        if (!isPeriodic) {
+            createNotificationChannel()
+        }
         if (!isStopped) {
-            setForeground(foregroundInfo)
+            if (!isPeriodic) {
+                setForeground(createForegroundInfo())
+            }
             suspendCancellableCoroutine { cont ->
                 workCont = cont
                 cont.invokeOnCancellation {
@@ -95,8 +103,12 @@ class AnalysisWorker(context: Context, parameters: WorkerParameters) : Coroutine
         try {
             initChannels(applicationContext)
 
-            val preferences = applicationContext.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE)
-            val entryIdStrings = preferences.getStringSet(PREF_ENTRY_IDS_KEY, null)
+            val entryIdStrings = if (isPeriodic) {
+                null
+            } else {
+                val preferences = applicationContext.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE)
+                preferences.getStringSet(PREF_ENTRY_IDS_KEY, null)
+            }
             startDartAnalysisService(entryIdStrings)
         } catch (ex: Exception) {
             Log.e(LOG_TAG, "failed to initialize worker", ex)
@@ -139,6 +151,7 @@ class AnalysisWorker(context: Context, parameters: WorkerParameters) : Coroutine
                     "start", hashMapOf(
                         "entryIds" to entryIdStrings?.map { Integer.parseUnsignedInt(it) }?.toList(),
                         "force" to inputData.getBoolean(KEY_FORCE, false),
+                        "periodic" to isPeriodic,
                     )
                 )
             }
@@ -209,6 +222,10 @@ class AnalysisWorker(context: Context, parameters: WorkerParameters) : Coroutine
     }
 
     private suspend fun updateNotification(call: MethodCall, result: MethodChannel.Result) {
+        if (isPeriodic) {
+            result.success(null)
+            return
+        }
         val title = call.argument<String>("title")
         val message = call.argument<String>("message")
         val foregroundInfo = createForegroundInfo(title, message)
@@ -236,5 +253,6 @@ class AnalysisWorker(context: Context, parameters: WorkerParameters) : Coroutine
         const val NOTIFICATION_ID = 1
 
         const val KEY_FORCE = "force"
+        const val KEY_PERIODIC = "periodic"
     }
 }

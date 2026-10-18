@@ -98,8 +98,10 @@ mixin SemanticMixin on SourceBase {
     final indexState = await localMediaDb.loadSemanticIndexState(modelId, dimension);
     final scope = semanticScope;
     final force = controller.force;
+    // hidden items are kept out of the index, for privacy
+    final visible = visibleEntries;
     final todo = candidateEntries.where((entry) {
-      if (!scope.test(entry)) return false;
+      if (!visible.contains(entry) || !scope.test(entry)) return false;
       if (force || !indexState.containsKey(entry.id)) return true;
       return indexState[entry.id] != entry.dateModifiedMillis;
     }).toList();

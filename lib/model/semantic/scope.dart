@@ -1,5 +1,6 @@
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/extensions/props.dart';
+import 'package:aves/model/entry/origins.dart';
 import 'package:aves/model/filters/filters.dart';
 import 'package:aves_model/aves_model.dart';
 
@@ -17,7 +18,8 @@ class SemanticScope {
   });
 
   bool test(AvesEntry entry) {
-    if (entry.trashed) return false;
+    // vault items are kept out of the index, for privacy
+    if (entry.trashed || entry.origin == EntryOrigins.vault) return false;
     if (entry.isVideo) {
       if (!includeVideos) return false;
     } else if (!entry.isImage) {

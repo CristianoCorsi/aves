@@ -7,8 +7,12 @@ import android.util.Log
 import androidx.core.app.ComponentActivity
 import androidx.core.content.edit
 import androidx.lifecycle.LifecycleOwner
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
@@ -22,6 +26,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.util.concurrent.TimeUnit
+import kotlin.math.max
 
 class AnalysisHandler<T>(private val activity: T, private val onAnalysisCompleted: () -> Unit) : MethodChannel.MethodCallHandler
         where T : ContextWrapper,
@@ -32,6 +38,7 @@ class AnalysisHandler<T>(private val activity: T, private val onAnalysisComplete
         when (call.method) {
             "registerCallback" -> ioScope.launch { Coresult.safe(call, result, ::registerCallback) }
             "startAnalysis" -> Coresult.safe(call, result, ::startAnalysis)
+            "scheduleSemanticIndexing" -> Coresult.safe(call, result, ::scheduleSemanticIndexing)
             else -> result.notImplemented()
         }
     }
@@ -92,6 +99,36 @@ class AnalysisHandler<T>(private val activity: T, private val onAnalysisComplete
         result.success(null)
     }
 
+    // periodic background analysis, mainly for semantic indexing
+    private fun scheduleSemanticIndexing(call: MethodCall, result: MethodChannel.Result) {
+        val mode = call.argument<String>("mode")
+        val requireIdle = call.argument<Boolean>("requireIdle") ?: true
+        val intervalMinutes = call.argument<Number>("intervalMinutes")?.toLong() ?: DEFAULT_PERIODIC_INTERVAL_MINUTES
+
+        val workManager = WorkManager.getInstance(activity)
+        if (mode == null || mode == "off") {
+            workManager.cancelUniqueWork(PERIODIC_ANALYSIS_WORK_NAME)
+            result.success(null)
+            return
+        }
+
+        val constraints = Constraints.Builder()
+            .setRequiresBatteryNotLow(true)
+            .setRequiresCharging(mode == "whileCharging")
+            .setRequiresDeviceIdle(requireIdle)
+            .build()
+        val workData = workDataOf(
+            AnalysisWorker.KEY_FORCE to false,
+            AnalysisWorker.KEY_PERIODIC to true,
+        )
+        val request = PeriodicWorkRequestBuilder<AnalysisWorker>(
+            max(intervalMinutes, PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS / 60000), TimeUnit.MINUTES,
+        ).setConstraints(constraints).setInputData(workData).build()
+        workManager.enqueueUniquePeriodicWork(PERIODIC_ANALYSIS_WORK_NAME, ExistingPeriodicWorkPolicy.UPDATE, request)
+        Log.i(LOG_TAG, "Scheduled periodic analysis with mode=$mode requireIdle=$requireIdle interval=${intervalMinutes}min")
+        result.success(null)
+    }
+
     private var attached = false
 
     fun attachToActivity() {
@@ -114,5 +151,7 @@ class AnalysisHandler<T>(private val activity: T, private val onAnalysisComplete
         private val LOG_TAG = LogUtils.createTag<AnalysisHandler<ComponentActivity>>()
         const val CHANNEL = "deckers.thibault/aves/analysis"
         private const val ANALYSIS_WORK_NAME = "analysis_work"
+        private const val PERIODIC_ANALYSIS_WORK_NAME = "periodic_analysis_work"
+        private const val DEFAULT_PERIODIC_INTERVAL_MINUTES = 60L
     }
 }

@@ -47,6 +47,21 @@ class AnalysisService {
       await reportService.recordError(e, stack);
     }
   }
+
+  // periodic background analysis, for continuous semantic indexing
+  static Future<void> schedulePeriodicAnalysis({
+    required SemanticBackgroundMode mode,
+    required bool requireIdle,
+  }) async {
+    try {
+      await _platform.invokeMethod('scheduleSemanticIndexing', <String, Object?>{
+        'mode': mode.name,
+        'requireIdle': requireIdle,
+      });
+    } on PlatformException catch (e, stack) {
+      await reportService.recordError(e, stack);
+    }
+  }
 }
 
 const _channel = AvesMethodChannel('deckers.thibault/aves/analysis_service_background');
@@ -136,9 +151,11 @@ class Analyzer with WidgetsBindingObserver {
   Future<void> start(Object? args) async {
     List<int>? entryIds;
     var force = false;
+    var periodic = false;
     if (args is Map) {
       entryIds = (args['entryIds'] as List?)?.cast<int>();
       force = args['force'] ?? false;
+      periodic = args['periodic'] ?? false;
     }
     await reportService.log('Analyzer start for ${entryIds?.length ?? 'all'} entries');
     _controller?.dispose();
@@ -153,10 +170,13 @@ class Analyzer with WidgetsBindingObserver {
     _serviceStateNotifier.value = AnalyzerState.running;
     await _source.init(scope: CollectionSource.fullScope, analysisController: _controller);
 
-    _notificationUpdateTimer = Timer.periodic(notificationUpdateInterval, (_) async {
-      if (!isRunning) return;
-      await _updateNotification();
-    });
+    // periodic runs have no notification
+    if (!periodic) {
+      _notificationUpdateTimer = Timer.periodic(notificationUpdateInterval, (_) async {
+        if (!isRunning) return;
+        await _updateNotification();
+      });
+    }
   }
 
   Future<void> stop() async {

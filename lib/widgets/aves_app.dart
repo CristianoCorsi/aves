@@ -21,6 +21,7 @@ import 'package:aves/ref/locale/usage.dart';
 import 'package:aves/ref/mime_types.dart';
 import 'package:aves/services/accessibility_service.dart';
 import 'package:aves/services/common/services.dart';
+import 'package:aves/services/semantic/scheduler.dart';
 import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/theme/text.dart';
@@ -380,6 +381,10 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
         availability.onResume();
         RecentlyAddedFilter.updateNow();
         _mediaStoreSource.checkForChanges();
+        if (settings.semanticEnabled) {
+          // vectors may have been added by periodic background analysis
+          _mediaStoreSource.invalidateSemanticMatrix();
+        }
       default:
         break;
     }
@@ -507,6 +512,8 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
     settingStream.where((event) => event.key == SettingKeys.videoThumbnailMethodsKey).listen((_) => _clearThumbnailCache());
     // platform settings
     settingStream.where((event) => event.key == SettingKeys.platformAccelerometerRotationKey).listen((_) => _applyIsRotationLocked());
+    // semantic search
+    settingStream.where((event) => SemanticScheduler.isSchedulingKey(event.key)).listen((_) => SemanticScheduler.update());
 
     _applyLocale();
     _applyDisplayRefreshRateMode();

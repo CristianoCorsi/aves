@@ -19,6 +19,7 @@ import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/ref/mime_types.dart';
 import 'package:aves/services/analysis_service.dart';
 import 'package:aves/services/common/services.dart';
+import 'package:aves/services/semantic/scheduler.dart';
 import 'package:aves/services/global_search.dart';
 import 'package:aves/services/intent_service.dart';
 import 'package:aves/services/widget_service.dart';
@@ -262,6 +263,9 @@ class _HomePageState extends State<HomePage> with FeedbackMixin {
         case .pickMultipleMediaExternal:
           unawaited(GlobalSearch.registerCallback());
           unawaited(AnalysisService.registerCallback());
+          if (appMode == .main) {
+            unawaited(SemanticScheduler.update());
+          }
           final source = context.read<CollectionSource>();
           if (source.loadedScope != CollectionSource.fullScope) {
             await reportService.log('Initialize source to start app with mode=$appMode, loaded scope=${source.loadedScope}');
