@@ -179,12 +179,12 @@ void main() {
   });
 
   test('semantic filter serialization', () {
-    final query = SemanticFilter.query('dog on the beach');
-    final similar = SemanticFilter.similar(42, entryLabel: 'IMG_42');
+    const query = SemanticFilter.query('dog on the beach');
+    const similar = SemanticFilter.similar(42, entryLabel: 'IMG_42');
     expect(CollectionFilter.fromJson(query.toJsonString()), query);
     expect(CollectionFilter.fromJson(similar.toJsonString()), similar);
     expect(query.key, isNot(similar.key));
-    expect(query.isCompatible(SemanticFilter.query('cat')), isFalse);
+    expect(query.isCompatible(const SemanticFilter.query('cat')), isFalse);
   });
 
   test('semantic search resolves text queries and similar items in collection', () async {
