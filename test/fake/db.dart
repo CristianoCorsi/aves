@@ -142,18 +142,66 @@ class FakeAvesDb extends Fake implements LocalMediaDb {
 
   // semantic
 
-  @override
-  Future<Map<int, int?>> loadSemanticIndexState(String modelId, int dimension) => SynchronousFuture({});
+  final Map<int, SemanticEmbeddingRow> semanticEmbeddings = {};
+  final Map<int, Set<SemanticTagRow>> semanticTags = {};
 
   @override
-  Future<List<SemanticEmbeddingRow>> loadSemanticEmbeddings(String modelId, int dimension, {Set<int>? ids}) => SynchronousFuture([]);
+  Future<void> clearSemanticData() {
+    semanticEmbeddings.clear();
+    semanticTags.clear();
+    return SynchronousFuture(null);
+  }
 
   @override
-  Future<void> saveSemanticEmbeddings(Set<SemanticEmbeddingRow> rows) => SynchronousFuture(null);
+  Future<Map<int, int?>> loadSemanticIndexState(String modelId, int dimension) => SynchronousFuture({
+    for (final row in semanticEmbeddings.values.where((v) => v.modelId == modelId && (v.vector.dimension == dimension || v.isFailure))) row.id: row.dateModifiedMillis,
+  });
 
   @override
-  Future<List<SemanticTagRow>> loadSemanticTags({Set<int>? ids}) => SynchronousFuture([]);
+  Future<List<SemanticEmbeddingRow>> loadSemanticEmbeddings(String modelId, int dimension, {Set<int>? ids}) => SynchronousFuture(
+    semanticEmbeddings.values.where((v) => v.modelId == modelId && v.vector.dimension == dimension && (ids == null || ids.contains(v.id))).toList(),
+  );
 
   @override
-  Future<void> replaceSemanticTags(Set<int> ids, Set<SemanticTagRow> rows) => SynchronousFuture(null);
+  Future<void> saveSemanticEmbeddings(Set<SemanticEmbeddingRow> rows) {
+    rows.forEach((row) => semanticEmbeddings[row.id] = row);
+    return SynchronousFuture(null);
+  }
+
+  @override
+  Future<int> removeObsoleteSemanticEmbeddings(String modelId, int dimension) {
+    final before = semanticEmbeddings.length;
+    semanticEmbeddings.removeWhere((_, v) => v.modelId != modelId || (v.vector.dimension != dimension && !v.isFailure));
+    return SynchronousFuture(before - semanticEmbeddings.length);
+  }
+
+  @override
+  Future<List<SemanticTagRow>> loadSemanticTags({Set<int>? ids}) => SynchronousFuture(
+    semanticTags.entries.where((kv) => ids == null || ids.contains(kv.key)).expand((kv) => kv.value).toList(),
+  );
+
+  @override
+  Future<void> replaceSemanticTags(Set<int> ids, Set<SemanticTagRow> rows) {
+    ids.forEach(semanticTags.remove);
+    rows.forEach((row) => semanticTags.putIfAbsent(row.id, () => {}).add(row));
+    return SynchronousFuture(null);
+  }
+
+  @override
+  Future<void> removeSemanticTag(int id, String tag) {
+    semanticTags[id]?.removeWhere((row) => row.tag == tag);
+    return SynchronousFuture(null);
+  }
+
+  @override
+  Future<void> clearSemanticTags() {
+    semanticTags.clear();
+    return SynchronousFuture(null);
+  }
+
+  @override
+  Future<List<SemanticLabelRow>> loadSemanticLabels(String modelId, int dimension) => SynchronousFuture([]);
+
+  @override
+  Future<void> saveSemanticLabels(Set<SemanticLabelRow> rows) => SynchronousFuture(null);
 }

@@ -27,6 +27,7 @@ import 'package:aves/model/source/location/country.dart';
 import 'package:aves/model/source/location/location.dart';
 import 'package:aves/model/source/location/place.dart';
 import 'package:aves/model/source/location/state.dart';
+import 'package:aves/model/source/semantic.dart';
 import 'package:aves/model/source/tag.dart';
 import 'package:aves/model/source/trash.dart';
 import 'package:aves/model/vaults/vaults.dart';
@@ -73,7 +74,7 @@ mixin SourceBase {
   FilterSummary computeFilterSummary(CollectionFilter filter);
 }
 
-abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, PlaceMixin, StateMixin, LocationMixin, TagMixin, TrashMixin {
+abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, PlaceMixin, StateMixin, LocationMixin, TagMixin, TrashMixin, SemanticMixin {
   static const fullScope = <CollectionFilter>{};
 
   new() {
@@ -240,6 +241,7 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
     await favourites.removeIds(oldIds);
     await covers.removeIds(oldIds);
     await localMediaDb.removeIds(oldIds);
+    removeSemanticVectors(oldIds);
 
     _disposeEntries((id, _) => oldIds.contains(id));
     updateDerivedFilters(oldEntries);
@@ -383,15 +385,18 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
     final movedEntries = <AvesEntry>{};
     final copy = moveType == MoveType.copy;
     if (copy) {
+      final copiedIdBySourceId = <int, int>{};
       movedOps.forEach((movedOp) {
         final sourceUri = movedOp.uri;
         final newFields = movedOp.newFields;
         final sourceEntry = todoEntries.firstWhereOrNull((entry) => entry.uri == sourceUri);
         if (sourceEntry != null) {
           fromAlbums.add(sourceEntry.directory);
+          final copyId = localMediaDb.nextId;
+          copiedIdBySourceId[sourceEntry.id] = copyId;
           movedEntries.add(
             sourceEntry.copyWith(
-              id: localMediaDb.nextId,
+              id: copyId,
               uri: newFields[EntryFields.uri] as String?,
               path: newFields[EntryFields.path] as String?,
               contentId: newFields[EntryFields.contentId] as int?,
@@ -409,6 +414,7 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
       await localMediaDb.insertEntries(movedEntries);
       await localMediaDb.saveCatalogMetadata(movedEntries.map((entry) => entry.catalogMetadata).nonNulls.toSet());
       await localMediaDb.saveAddresses(movedEntries.map((entry) => entry.addressDetails).nonNulls.toSet());
+      await copySemanticData(copiedIdBySourceId);
     } else {
       await Future.forEach<MoveOpEvent>(movedOps, (movedOp) async {
         final newFields = movedOp.newFields;
@@ -559,6 +565,7 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
         if (await locateEntries(_analysisController, todoEntries)) {
           updateDerivedFilters(todoEntries);
         }
+        await indexSemanticEntries(_analysisController, todoEntries);
       }
     }
     defaultAnalysisController.dispose();

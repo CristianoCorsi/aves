@@ -128,7 +128,8 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
     final cursor = await _db.queryCursor(
       semanticEmbeddingTable,
       columns: ['id', 'dateModifiedMillis'],
-      where: 'modelId = ? AND dimension = ?',
+      // include failure markers, of dimension 0
+      where: 'modelId = ? AND (dimension = ? OR dimension = 0)',
       whereArgs: [modelId, dimension],
       bufferSize: _queryCursorBufferSize,
     );
@@ -166,7 +167,7 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
 
   @override
   Future<int> removeObsoleteSemanticEmbeddings(String modelId, int dimension) async {
-    final count = await _db.delete(semanticEmbeddingTable, where: 'modelId != ? OR dimension != ?', whereArgs: [modelId, dimension]);
+    final count = await _db.delete(semanticEmbeddingTable, where: 'modelId != ? OR (dimension != ? AND dimension != 0)', whereArgs: [modelId, dimension]);
     if (count > 0) {
       debugPrint('$runtimeType removeObsoleteSemanticEmbeddings deleted $count rows');
     }

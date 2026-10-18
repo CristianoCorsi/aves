@@ -23,6 +23,20 @@ class SemanticPerformanceParams extends Equatable {
     required this.itemDelayMillis,
   });
 
+  SemanticPerformanceParams copyWith({
+    SemanticBackend? backend,
+    int? vectorDimension,
+    int? thumbnailSize,
+    int? maxItemsPerRun,
+    int? itemDelayMillis,
+  }) => SemanticPerformanceParams(
+    backend: backend ?? this.backend,
+    vectorDimension: vectorDimension ?? this.vectorDimension,
+    thumbnailSize: thumbnailSize ?? this.thumbnailSize,
+    maxItemsPerRun: maxItemsPerRun ?? this.maxItemsPerRun,
+    itemDelayMillis: itemDelayMillis ?? this.itemDelayMillis,
+  );
+
   static const low = SemanticPerformanceParams(
     backend: SemanticBackend.cpu,
     vectorDimension: 256,

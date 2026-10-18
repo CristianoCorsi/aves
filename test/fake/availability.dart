@@ -3,6 +3,11 @@ import 'package:flutter/foundation.dart';
 import 'package:test/fake.dart';
 
 class FakeAvesAvailability extends Fake implements AvesAvailability {
+  bool semanticSupported = false;
+
   @override
   Future<bool> get canLocatePlaces => SynchronousFuture(false);
+
+  @override
+  Future<bool> get canUseSemantic => SynchronousFuture(semanticSupported);
 }

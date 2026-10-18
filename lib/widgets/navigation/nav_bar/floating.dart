@@ -5,12 +5,12 @@ import 'package:aves/widgets/common/basic/draggable_scrollbar/notifications.dart
 import 'package:material_ui/material_ui.dart';
 
 class const FloatingNavBar({
-    super.key,
-    required final ScrollController? scrollController,
-    required final Stream<DraggableScrollbarEvent> events,
-    required final double childHeight,
-    required final Widget child,
-  }) extends StatefulWidget {
+  super.key,
+  required final ScrollController? scrollController,
+  required final Stream<DraggableScrollbarEvent> events,
+  required final double childHeight,
+  required final Widget child,
+}) extends StatefulWidget {
   @override
   State<FloatingNavBar> createState() => _FloatingNavBarState();
 }

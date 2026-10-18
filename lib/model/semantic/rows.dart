@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:aves/model/semantic/vector.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
@@ -19,6 +21,20 @@ class SemanticEmbeddingRow extends Equatable {
     required this.vector,
     required this.dateModifiedMillis,
   });
+
+  // marks an entry that could not be indexed, to avoid retrying it until it is modified
+  factory failure({
+    required int id,
+    required String modelId,
+    required int? dateModifiedMillis,
+  }) => SemanticEmbeddingRow(
+    id: id,
+    modelId: modelId,
+    vector: QuantizedVector(Int8List(0), 1),
+    dateModifiedMillis: dateModifiedMillis,
+  );
+
+  bool get isFailure => vector.dimension == 0;
 
   factory fromMap(Map<String, Object?> map) {
     return SemanticEmbeddingRow(

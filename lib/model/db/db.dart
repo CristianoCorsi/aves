@@ -143,7 +143,8 @@ abstract class LocalMediaDb {
 
   Future<void> clearSemanticData();
 
-  // returns modification dates by entry ID, for vectors of the given model and dimension
+  // returns modification dates by entry ID, for vectors of the given model and dimension,
+  // as well as for failure markers (rows with an empty vector)
   Future<Map<int, int?>> loadSemanticIndexState(String modelId, int dimension);
 
   Future<List<SemanticEmbeddingRow>> loadSemanticEmbeddings(String modelId, int dimension, {Set<int>? ids});
