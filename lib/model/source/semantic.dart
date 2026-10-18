@@ -274,17 +274,22 @@ mixin SemanticMixin on SourceBase, TagMixin {
     final rows = await localMediaDb.loadSemanticTags(ids: ids);
     final tagsById = <int, Set<String>>{};
     rows.forEach((row) => tagsById.putIfAbsent(row.id, () => {}).add(row.tag));
-    if (ids == null) {
-      allEntries.forEach((entry) => entry.autoTags = tagsById[entry.id] ?? const {});
-    } else {
-      ids.forEach((id) {
-        final entry = getEntryById(id);
-        if (entry != null) {
-          entry.autoTags = tagsById[id] ?? const {};
-        }
-      });
+
+    var changed = false;
+    void update(AvesEntry entry) {
+      final newTags = tagsById[entry.id] ?? const <String>{};
+      if (!const SetEquality<String>().equals(entry.autoTags, newTags)) {
+        entry.autoTags = newTags;
+        changed = true;
+      }
     }
-    if (rows.isNotEmpty) {
+
+    if (ids == null) {
+      allEntries.forEach(update);
+    } else {
+      ids.map(getEntryById).nonNulls.forEach(update);
+    }
+    if (changed) {
       onCatalogMetadataChanged();
     }
   }
