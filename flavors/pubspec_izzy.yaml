@@ -80,6 +80,7 @@ dependencies:
       path: community_charts_flutter
   connectivity_plus:
   country_code:
+  crypto:
   csv:
   device_info_plus:
   dlna_dart:
@@ -137,6 +138,7 @@ dependencies:
       url: https://github.com/deckerst/aves_panorama.git
       ref: aves
   path:
+  path_provider:
   pattern_lock:
   pdf:
   percent_indicator:

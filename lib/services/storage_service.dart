@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:aves/model/covers.dart';
 import 'package:aves/ref/mime_types.dart';
@@ -43,6 +44,10 @@ abstract class StorageService {
 
   // return content from a user selected file
   Future<Uint8List> openFile([String? mimeType]);
+
+  // lets the user pick a file, and streams its content to the given path,
+  // without loading it in memory
+  Future<bool> openFileTo(String destinationPath, [String? mimeType]);
 
   // copy provided file to a user selected file
   // returns whether operation succeeded (`null` if user cancelled)
@@ -243,6 +248,39 @@ class PlatformStorageService implements StorageService {
       await reportService.recordError(e, stack);
     }
     return Uint8List(0);
+  }
+
+  @override
+  Future<bool> openFileTo(String destinationPath, [String? mimeType]) async {
+    final sink = File(destinationPath).openWrite();
+    var written = 0;
+    try {
+      final opCompleter = Completer<bool>();
+      _stream
+          .receiveBroadcastStream(<String, Object?>{
+            'op': 'openFile',
+            'mimeType': mimeType,
+          })
+          .listen(
+            (data) {
+              final chunk = data as Uint8List;
+              sink.add(chunk);
+              written += chunk.length;
+            },
+            onError: opCompleter.completeError,
+            onDone: () {
+              if (!opCompleter.isCompleted) opCompleter.complete(written > 0);
+            },
+            cancelOnError: true,
+          );
+      // `await` here, so that `completeError` will be caught below
+      return await opCompleter.future;
+    } on PlatformException catch (e, stack) {
+      await reportService.recordError(e, stack);
+    } finally {
+      await sink.close();
+    }
+    return false;
   }
 
   @override
