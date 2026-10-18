@@ -189,6 +189,7 @@ class SettingKeys {
   static const semanticMaxResultsKey = 'semantic_max_results';
   static const semanticMinSimilarityKey = 'semantic_min_similarity';
   static const semanticSearchByDefaultKey = 'semantic_search_by_default';
+  static const semanticSortByRelevanceKey = 'semantic_sort_by_relevance';
   static const semanticAutoTagEnabledKey = 'semantic_auto_tag_enabled';
   static const semanticAutoTagShowAsTagsKey = 'semantic_auto_tag_show_as_tags';
   static const semanticAutoTagMaxPerItemKey = 'semantic_auto_tag_max_per_item';

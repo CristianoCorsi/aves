@@ -137,6 +137,7 @@ class SettingsDefaults {
   // similarity values are to be calibrated with the actual model
   static const semanticMinSimilarity = .2;
   static const semanticSearchByDefault = false;
+  static const semanticSortByRelevance = true;
   static const semanticAutoTagEnabled = false;
   static const semanticAutoTagShowAsTags = true;
   static const semanticAutoTagMaxPerItem = 5;

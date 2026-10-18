@@ -95,6 +95,10 @@ mixin SemanticSettings on SettingsAccess {
 
   set semanticSearchByDefault(bool newValue) => set(SettingKeys.semanticSearchByDefaultKey, newValue);
 
+  bool get semanticSortByRelevance => getBool(SettingKeys.semanticSortByRelevanceKey) ?? SettingsDefaults.semanticSortByRelevance;
+
+  set semanticSortByRelevance(bool newValue) => set(SettingKeys.semanticSortByRelevanceKey, newValue);
+
   // auto tagging
 
   bool get semanticAutoTagEnabled => getBool(SettingKeys.semanticAutoTagEnabledKey) ?? SettingsDefaults.semanticAutoTagEnabled;

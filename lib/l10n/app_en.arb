@@ -153,6 +153,7 @@
   "settingsSemanticMaxResults": "Maximum results",
   "settingsSemanticMinSimilarity": "Minimum similarity",
   "settingsSemanticSearchByDefault": "Search by content on submit",
+  "settingsSemanticSortByRelevance": "Sort results by relevance",
   "settingsSemanticAutoTagTile": "Automatic tags",
   "settingsSemanticAutoTagEnable": "Generate tags",
   "settingsSemanticAutoTagShowAsTags": "Use with other tags",

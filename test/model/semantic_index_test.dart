@@ -240,4 +240,27 @@ void main() {
     expect(entry.effectiveTags, isEmpty);
     expect(source.sortedTags, isNot(contains('${entry.id}')));
   });
+
+  test('semantic results are sorted by relevance, in a single section', () async {
+    final entries = List.generate(3, (i) => FakeMediaStoreService.newImage(albumA, 'item$i')).toSet();
+    (mediaStoreService as FakeMediaStoreService).entries = entries;
+    settings.semanticIndexScope = SemanticIndexScope.all;
+    settings.semanticMinSimilarity = 0;
+    semanticSearch.clear();
+
+    final source = await initSource();
+    final ids = source.allEntries.map((entry) => entry.id).toList()..sort();
+    // fake engine maps text `n` to the same vector as the image of item with ID `n`
+    final filter = SemanticFilter.query('${ids[1]}');
+    await semanticSearch.resolve(filter, source);
+
+    final lens = CollectionLens(source: source, filters: {filter});
+    expect(lens.isSortedByRelevance, isTrue);
+    expect(lens.sortedEntries.first.id, ids[1]);
+    expect(lens.sections.length, 1);
+
+    settings.semanticSortByRelevance = false;
+    expect(lens.isSortedByRelevance, isFalse);
+    lens.dispose();
+  });
 }

@@ -46,6 +46,7 @@ class SemanticSection extends SettingsSection {
       SettingsTileSemanticMaxResults(),
       SettingsTileSemanticMinSimilarity(),
       SettingsTileSemanticSearchByDefault(),
+      SettingsTileSemanticSortByRelevance(),
       SettingsTileSemanticAutoTag(),
     ];
   }
@@ -184,6 +185,21 @@ class SettingsTileSemanticSearchByDefault extends SettingsTile {
   Widget build(BuildContext context) => SettingsSwitchListTile(
     selector: (context, s) => s.semanticSearchByDefault,
     onChanged: (v) => settings.semanticSearchByDefault = v,
+    title: title,
+  );
+}
+
+class SettingsTileSemanticSortByRelevance extends SettingsTile {
+  @override
+  List<String> get settingKeys => [SettingKeys.semanticSortByRelevanceKey];
+
+  @override
+  String title(BuildContext context) => context.l10n.settingsSemanticSortByRelevance;
+
+  @override
+  Widget build(BuildContext context) => SettingsSwitchListTile(
+    selector: (context, s) => s.semanticSortByRelevance,
+    onChanged: (v) => settings.semanticSortByRelevance = v,
     title: title,
   );
 }

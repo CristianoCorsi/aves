@@ -312,8 +312,21 @@ class CollectionLens with ChangeNotifier {
     }
   }
 
+  // semantic search results are ordered by decreasing similarity, without sections
+  bool get isSortedByRelevance => !fixedSort && settings.semanticSortByRelevance && _semanticFilters.isNotEmpty;
+
   void _applySort() {
     if (fixedSort) return;
+
+    if (isSortedByRelevance) {
+      final filters = _semanticFilters.toList();
+      final scores = {for (final entry in _filteredSortedEntries) entry: semanticSearch.bestScore(filters, entry.id) ?? double.negativeInfinity};
+      _filteredSortedEntries.sort((a, b) {
+        final c = scores[b]!.compareTo(scores[a]!);
+        return c != 0 ? c : AvesEntrySort.compareByDate(a, b);
+      });
+      return;
+    }
 
     switch (sortFactor) {
       case .date:
@@ -338,7 +351,7 @@ class CollectionLens with ChangeNotifier {
   }
 
   void _applySection() {
-    if (fixedSort) {
+    if (fixedSort || isSortedByRelevance) {
       sections = Map.fromEntries([
         MapEntry(const SectionKey(), _filteredSortedEntries),
       ]);
@@ -418,6 +431,7 @@ class CollectionLens with ChangeNotifier {
       SettingKeys.collectionSortFactorKey,
       SettingKeys.collectionSortReverseKey,
       SettingKeys.collectionSectionFactorKey,
+      SettingKeys.semanticSortByRelevanceKey,
       SettingKeys.calendarKey,
     ].contains(event.key);
   }

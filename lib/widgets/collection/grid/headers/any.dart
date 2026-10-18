@@ -30,6 +30,9 @@ class const CollectionSectionHeader({
   }
 
   Widget? _buildHeader(BuildContext context) {
+    // single section without header
+    if (collection.isSortedByRelevance) return null;
+
     switch (collection.sortFactor) {
       case .date:
         switch (collection.sectionFactor) {

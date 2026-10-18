@@ -426,6 +426,7 @@ class Settings
           case SettingKeys.semanticIndexVideosKey:
           case SettingKeys.semanticRequireIdleKey:
           case SettingKeys.semanticSearchByDefaultKey:
+          case SettingKeys.semanticSortByRelevanceKey:
           case SettingKeys.semanticAutoTagEnabledKey:
           case SettingKeys.semanticAutoTagShowAsTagsKey:
             if (newValue is bool) {

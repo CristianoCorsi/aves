@@ -87,6 +87,7 @@
     "settingsSemanticMaxResults": "Numero massimo di risultati",
     "settingsSemanticMinSimilarity": "Somiglianza minima",
     "settingsSemanticSearchByDefault": "Cerca per contenuto all’invio",
+    "settingsSemanticSortByRelevance": "Ordina i risultati per pertinenza",
     "settingsSemanticAutoTagTile": "Tag automatici",
     "settingsSemanticAutoTagEnable": "Genera i tag",
     "settingsSemanticAutoTagShowAsTags": "Usa insieme agli altri tag",
