@@ -42,7 +42,7 @@ class SemanticModelService {
   Future<void> download() async {
     if (isBusy) return;
     if (settings.semanticDownloadWifiOnly && !await availability.isOnUnmeteredNetwork) {
-      throw const SemanticModelException('download requires an unmetered network');
+      throw const SemanticNoUnmeteredNetworkException();
     }
 
     final cancelToken = SemanticDownloadCancelToken();

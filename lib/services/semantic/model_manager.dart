@@ -60,6 +60,10 @@ class SemanticModelException implements Exception {
   String toString() => '$runtimeType: $message';
 }
 
+class SemanticNoUnmeteredNetworkException extends SemanticModelException {
+  const new() : super('download requires an unmetered network');
+}
+
 class SemanticDownloadCancelledException extends SemanticModelException {
   const new() : super('download cancelled');
 }

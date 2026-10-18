@@ -142,6 +142,8 @@ abstract class AvesColorsData {
 
   Color get privacy => fromHue(344);
 
+  Color get semantic => fromHue(28);
+
   Color get thumbnails => fromHue(87);
 
   // debug

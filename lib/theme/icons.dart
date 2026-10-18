@@ -123,6 +123,7 @@ class AIcons {
   static const copy = Symbols.file_copy;
   static const debug = Symbols.mode_heat;
   static const delete = Symbols.delete;
+  static const download = Symbols.download;
   static const edit = Symbols.edit;
   static const emptyBin = Symbols.delete_sweep;
   static const export = Symbols.open_with;

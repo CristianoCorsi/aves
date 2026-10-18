@@ -65,6 +65,24 @@ mixin SemanticMixin on SourceBase, TagMixin {
     eventBus.fire(SemanticIndexChangedEvent());
   }
 
+  // returns how many items in the indexing scope are indexed (including failures), and their total count
+  Future<(int, int)> semanticIndexStats() async {
+    final modelId = settings.semanticModelId;
+    final scope = semanticScope;
+    final inScope = visibleEntries.where(scope.test).map((entry) => entry.id).toSet();
+    if (modelId == null) return (0, inScope.length);
+
+    final indexState = await localMediaDb.loadSemanticIndexState(modelId, settings.semanticPerformanceParams.vectorDimension);
+    return (inScope.where(indexState.containsKey).length, inScope.length);
+  }
+
+  Future<void> clearSemanticIndex() async {
+    await localMediaDb.clearSemanticData();
+    allEntries.forEach((entry) => entry.autoTags = const {});
+    invalidateSemanticMatrix();
+    onCatalogMetadataChanged();
+  }
+
   void removeSemanticVectors(Set<int> ids) {
     _semanticMatrix?.removeAll(ids);
   }
