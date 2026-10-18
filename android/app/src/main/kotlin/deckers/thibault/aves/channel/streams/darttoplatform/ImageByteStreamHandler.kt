@@ -17,6 +17,7 @@ import deckers.thibault.aves.model.VideoThumbnailMethod
 import deckers.thibault.aves.storage.StorageUtils
 import deckers.thibault.aves.utils.BitmapUtils
 import deckers.thibault.aves.utils.BitmapUtils.applyExifOrientation
+import deckers.thibault.aves.utils.ContextUtils.devicePixelRatio
 import deckers.thibault.aves.utils.LogUtils
 import deckers.thibault.aves.utils.MimeTypes
 import deckers.thibault.aves.utils.MimeTypes.handleEncodedBytesInFlutter
@@ -249,8 +250,10 @@ class ImageByteStreamHandler(private val context: Context, private val arguments
         val dateModifiedMillis = (arguments[EntryFields.DATE_MODIFIED_MILLIS] as Number?)?.toLong()
         val rotationDegrees = arguments[EntryFields.ROTATION_DEGREES] as Int?
         val isFlipped = arguments[EntryFields.IS_FLIPPED] as Boolean?
-        val widthDip = (arguments["widthDip"] as Number?)?.toDouble()
-        val heightDip = (arguments["heightDip"] as Number?)?.toDouble()
+        // size may be requested in physical pixels, e.g. for semantic indexing
+        val pixelRatio = if (arguments["sizeInPixels"] == true) context.devicePixelRatio().toDouble() else 1.0
+        val widthDip = (arguments["widthDip"] as Number?)?.toDouble()?.let { it / pixelRatio }
+        val heightDip = (arguments["heightDip"] as Number?)?.toDouble()?.let { it / pixelRatio }
         val videoMethods = (arguments["videoMethods"] as List<*>?)?.filterIsInstance<String>()?.mapNotNull { VideoThumbnailMethod.fromKey(it) }
 
         if (uri == null || mimeType == null || rotationDegrees == null || isFlipped == null || widthDip == null || heightDip == null) {

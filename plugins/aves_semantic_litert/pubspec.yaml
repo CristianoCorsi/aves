@@ -1,0 +1,23 @@
+name: aves_semantic_platform
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: ">=3.13.3 <4.0.0"
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  aves_semantic:
+    path: ../aves_semantic
+
+dev_dependencies:
+  flutter_lints:
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: deckers.thibault.aves.aves_semantic
+        pluginClass: AvesSemanticPlugin

@@ -1,0 +1,7 @@
+<manifest xmlns:tools="http://schemas.android.com/tools">
+    <!--
+    LiteRT-LM may declare a higher minimum SDK than the app:
+    the engine is only loaded on demand, and loading failures are handled
+    -->
+    <uses-sdk tools:overrideLibrary="com.google.ai.edge.litertlm" />
+</manifest>

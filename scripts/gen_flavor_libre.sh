@@ -7,6 +7,7 @@ fi
 
 sed -i 's|plugins/aves_services_.*|plugins/aves_services_none|g' "pubspec.yaml"
 sed -i 's|plugins/aves_report_.*|plugins/aves_report_console|g' "pubspec.yaml"
+sed -i 's|plugins/aves_semantic_[a-z]*$|plugins/aves_semantic_none|g' "pubspec.yaml"
 
 ./flutterw pub get
 

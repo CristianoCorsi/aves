@@ -25,6 +25,10 @@ abstract class MediaFetchService {
 
   Future<Uint8List> getOriginalBytes(AvesEntry entry);
 
+  // returns JPEG/PNG bytes of a thumbnail with a target size in physical pixels,
+  // or `null` when the thumbnail is not available in an encoded format
+  Future<Uint8List?> getEncodedThumbnailBytes(AvesEntry entry, {required int sizePx});
+
   Future<ui.Codec> getFullImage({
     required bool decoded,
     required ImageRequest request,
@@ -179,6 +183,29 @@ class PlatformMediaFetchService implements MediaFetchService {
       default:
         throw UnreportedStateError('unsupported image format byte=$format for args=$args');
     }
+  }
+
+  @override
+  Future<Uint8List?> getEncodedThumbnailBytes(AvesEntry entry, {required int sizePx}) async {
+    final mimeType = entry.mimeType;
+    final args = <String, Object?>{
+      'op': 'getThumbnail',
+      'decoded': false,
+      'mimeType': mimeType,
+      'uri': entry.uri,
+      'pageId': entry.pageId,
+      'dateModifiedMillis': entry.dateModifiedMillis ?? -1,
+      'rotationDegrees': entry.rotationDegrees,
+      'isFlipped': entry.isFlipped,
+      'widthDip': sizePx,
+      'heightDip': sizePx,
+      'sizeInPixels': true,
+      'videoMethods': entry.isVideo ? settings.videoThumbnailMethods.map((v) => v.name).toList() : null,
+    };
+    final bytes = await _getBytes(mimeType: mimeType, arguments: args);
+    final trailerOffset = bytes.lengthInBytes - _formatTrailerLength;
+    if (trailerOffset <= 0 || bytes[trailerOffset] != _formatByteEncoded) return null;
+    return Uint8List.sublistView(bytes, 0, trailerOffset);
   }
 
   @override

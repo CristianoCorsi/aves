@@ -26,6 +26,8 @@ workspace:
   - plugins/aves_report
   - plugins/aves_report_console
   - plugins/aves_screen_state
+  - plugins/aves_semantic
+  - plugins/aves_semantic_litert
   - plugins/aves_services
   - plugins/aves_services_google
   - plugins/aves_ui
@@ -52,6 +54,10 @@ dependencies:
     path: plugins/aves_report_console
   aves_screen_state:
     path: plugins/aves_screen_state
+  aves_semantic:
+    path: plugins/aves_semantic
+  aves_semantic_platform:
+    path: plugins/aves_semantic_litert
   aves_services:
     path: plugins/aves_services
   aves_services_platform:
